@@ -29,15 +29,17 @@ Ports 3000/3001 are the most common failure — a previous session's process oft
 lsof -ti:3000 -ti:3001 | xargs -r kill -9
 ```
 
-Then start dev mode in the background, sourcing the key from `.env.local`:
+Then start dev mode in the background — `npm run dev` loads `.env.local` itself via `node --env-file`, no manual export needed:
 
 ```bash
 cd /Users/nui.kunawut/Desktop/ai-box-ideation-agent
-export $(grep -v '^#' .env.local | xargs) && npm run dev > /tmp/ai-box-dev.log 2>&1 &
+npm run dev > /tmp/ai-box-dev.log 2>&1 &
 disown
 sleep 10
 tail -n 40 /tmp/ai-box-dev.log
 ```
+
+Or use `preview_start` with the `.claude/launch.json` "dev" config — same command, port 3000.
 
 Success looks like:
 ```

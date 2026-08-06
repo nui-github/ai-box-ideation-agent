@@ -4,7 +4,7 @@
   "scripts": {
     "start": "node server.mjs",
     "build": "ng build --configuration production",
-    "dev": "node server.mjs --dev & ng serve --port 3000 --host 0.0.0.0 --disable-host-check --proxy-config proxy.conf.json"
+    "dev": "node --env-file=.env.local server.mjs --dev & ng serve --port 3000 --host 0.0.0.0 --disable-host-check --proxy-config proxy.conf.json"
   },
   "dependencies": {
     "@angular/animations": "^18.0.0",
