@@ -89,11 +89,39 @@
                 } @else {
                   <div class="result-wrap">
                     <p class="msg-meta"><lucide-icon name="layout-grid" [size]="14" style="margin-right:4px"></lucide-icon> UX Flow Designer · eSignature System</p>
-                    @if (msg.isHtml) {
-                      <div class="ai-content" [innerHTML]="msg.content"></div>
-                    } @else {
-                      <div class="ai-content">{{ msg.content }}</div>
-                    }
+                    <div class="ai-content">
+                      @for (section of msg.sections; track $index) {
+                        @if (section.title) {
+                          <div class="section-card" [ngClass]="section.cls">
+                            <div class="section-card-head">
+                              <lucide-icon [name]="section.icon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+                              <span>{{ section.label }}</span>
+                            </div>
+                            <div class="section-card-body">
+                              @if (section.diagramSteps) {
+                                <div class="flow-diagram">
+                                  @for (step of section.diagramSteps; track $index; let isLast = $last) {
+                                    <div class="flow-diagram-node">
+                                      <div class="flow-diagram-box">
+                                        <span class="flow-diagram-num">{{ $index + 1 }}</span>
+                                        <span class="flow-diagram-label">{{ step }}</span>
+                                      </div>
+                                      @if (!isLast) {
+                                        <div class="flow-diagram-arrow"><lucide-icon name="arrow-right" [size]="16" [strokeWidth]="2.5"></lucide-icon></div>
+                                      }
+                                    </div>
+                                  }
+                                </div>
+                              } @else {
+                                <div [innerHTML]="section.body"></div>
+                              }
+                            </div>
+                          </div>
+                        } @else {
+                          <div style="font-size:13.5px;line-height:1.7;margin-bottom:10px" [innerHTML]="section.body"></div>
+                        }
+                      }
+                    </div>
                   </div>
                 }
               </div>

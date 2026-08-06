@@ -23,11 +23,20 @@ import { LucideAngularModule } from 'lucide-angular';
 import { UxFlowService } from './services/ux-flow.service';
 import { UxFlowPrompt } from './mock-data/ux-flow.mock';
 
+interface FlowSection {
+  title: string | null;
+  label: string;
+  icon: string;
+  cls: string;
+  body?: SafeHtml;
+  diagramSteps?: string[];
+}
+
 interface Message {
   role: 'user' | 'assistant';
-  content: string | SafeHtml;
-  isHtml?: boolean;
+  content?: string;
   rawContent?: string;
+  sections?: FlowSection[];
 }
 
 @Component({
@@ -149,7 +158,8 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     const info = this.infoTexts()[type];
     if (info) {
       this.drawerTitle.set(info.title);
-      this.drawerContent.set(this.sanitizer.bypassSecurityTrustHtml(this.renderMD(info.text)));
+      const meta = { numCls: "step-num-default", dotCls: "bullet-dot-default" };
+      this.drawerContent.set(this.sanitizer.bypassSecurityTrustHtml(this.renderBody(info.text, meta)));
       this.isDrawerVisible.set(true);
     }
   }
@@ -230,7 +240,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
       };
 
       // Add a placeholder message for the assistant stream
-      this.messages.update(m => [...m, { role: 'assistant', content: '', isHtml: true, rawContent: '' }]);
+      this.messages.update(m => [...m, { role: 'assistant', rawContent: '', sections: [] }]);
 
       const response = await fetch('/api/design', {
         method: 'POST',
@@ -285,11 +295,11 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
                }
                if (parsed.chunk) {
                  fullText += parsed.chunk;
-                 const safeHtml = this.sanitizer.bypassSecurityTrustHtml(this.renderMD(fullText));
+                 const sections = this.parseSections(fullText);
                  // Update the last message
                  this.messages.update(msgs => {
                    const newMsgs = [...msgs];
-                   newMsgs[newMsgs.length - 1] = { role: 'assistant', content: safeHtml, isHtml: true, rawContent: fullText };
+                   newMsgs[newMsgs.length - 1] = { role: 'assistant', rawContent: fullText, sections };
                    return newMsgs;
                  });
                  // Force scroll down as content comes in
@@ -312,10 +322,10 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
              if (parsed.error) throw new Error(parsed.error);
              if (parsed.chunk) {
                 fullText += parsed.chunk;
-                const safeHtml = this.sanitizer.bypassSecurityTrustHtml(this.renderMD(fullText));
+                const sections = this.parseSections(fullText);
                 this.messages.update(msgs => {
                    const newMsgs = [...msgs];
-                   newMsgs[newMsgs.length - 1] = { role: 'assistant', content: safeHtml, isHtml: true, rawContent: fullText };
+                   newMsgs[newMsgs.length - 1] = { role: 'assistant', rawContent: fullText, sections };
                    return newMsgs;
                 });
              }
@@ -371,47 +381,60 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     }
   }
 
-  renderMD(text: string): string {
-    const sectionMap: Record<string, {cls: string, numCls: string, dotCls: string, icon: string}> = {
-      "📋 User Flow":       { cls: "section-flow",     numCls: "step-num-flow",     dotCls: "bullet-dot-flow", icon: "file-text" },
-      "🗺️ Flow Diagram":   { cls: "section-diagram",   numCls: "step-num-diagram",  dotCls: "bullet-dot-diagram", icon: "map" },
-      "🔍 Flow Analysis":   { cls: "section-analysis",  numCls: "step-num-analysis", dotCls: "bullet-dot-analysis", icon: "lightbulb" },
-      "⚖️ Pros & Cons":    { cls: "section-pros",      numCls: "step-num-pros",     dotCls: "bullet-dot-pros", icon: "square" },
-      "⚠️ Technical Alert": { cls: "section-alert",     numCls: "step-num-alert",    dotCls: "bullet-dot-alert", icon: "alert-circle" },
-      "🎨 UI Components":   { cls: "section-ui",        numCls: "step-num-ui",       dotCls: "bullet-dot-ui", icon: "layout-grid" },
-    };
+  private static readonly SECTION_MAP: Record<string, {cls: string, numCls: string, dotCls: string, icon: string, label: string}> = {
+    "📋 User Flow":       { cls: "section-flow",     numCls: "step-num-flow",     dotCls: "bullet-dot-flow",     icon: "file-text",     label: "User Flow" },
+    "🗺️ Flow Diagram":   { cls: "section-diagram",   numCls: "step-num-diagram",  dotCls: "bullet-dot-diagram",  icon: "map",            label: "Flow Diagram" },
+    "🔍 Flow Analysis":   { cls: "section-analysis",  numCls: "step-num-analysis", dotCls: "bullet-dot-analysis", icon: "lightbulb",      label: "Flow Analysis" },
+    "⚖️ Pros & Cons":    { cls: "section-pros",      numCls: "step-num-pros",     dotCls: "bullet-dot-pros",     icon: "scale",          label: "Pros & Cons" },
+    "⚠️ Technical Alert": { cls: "section-alert",     numCls: "step-num-alert",    dotCls: "bullet-dot-alert",    icon: "triangle-alert", label: "Technical Alert" },
+    "🎨 UI Components":   { cls: "section-ui",        numCls: "step-num-ui",       dotCls: "bullet-dot-ui",       icon: "palette",        label: "UI Components" },
+  };
 
-    const sections = []; 
-    let cur: any = null;
-    
+  parseSections(text: string): FlowSection[] {
+    const raw: { title: string | null, lines: string[] }[] = [];
+    let cur: { title: string | null, lines: string[] } | null = null;
+
     for (const line of text.split("\n")) {
       const m = line.match(/^## (.+)$/);
-      if (m) { 
-        if (cur) sections.push(cur); 
-        cur = { title: m[1].trim(), lines: [] }; 
+      if (m) {
+        if (cur) raw.push(cur);
+        cur = { title: m[1].trim(), lines: [] };
       }
       else if (cur) cur.lines.push(line);
-      else { 
-        if (!sections.length) sections.push({ title: null, lines: [line] }); 
-        else sections[0].lines.push(line); 
+      else {
+        if (!raw.length) raw.push({ title: null, lines: [line] });
+        else raw[0].lines.push(line);
       }
     }
-    if (cur) sections.push(cur);
+    if (cur) raw.push(cur);
 
-    return sections.map(s => {
-      const content = s.lines.join("\n").trim();
-      if (!content && !s.title) return "";
-      
-      const meta = s.title && sectionMap[s.title] ? sectionMap[s.title] : { cls: "section-default", numCls: "step-num-default", dotCls: "bullet-dot-default", icon: "file" };
-      const bodyHTML = s.title === "🗺️ Flow Diagram" ? this.renderFlowDiagram(content) : this.renderBody(content, meta);
-      
-      if (!s.title) return `<div style="font-size:13.5px;line-height:1.7;margin-bottom:10px">${bodyHTML}</div>`;
-      
-      return `<div class="section-card ${meta.cls}">
-        <div class="section-card-head" style="display:flex;align-items:center;gap:6px"><lucide-icon name="${meta.icon}" [size]="16" [strokeWidth]="2.5"></lucide-icon> ${this.esc(s.title)}</div>
-        <div class="section-card-body">${bodyHTML}</div>
-      </div>`;
-    }).join("");
+    return raw
+      .map((s): FlowSection | null => {
+        const content = s.lines.join("\n").trim();
+        if (!content && !s.title) return null;
+
+        const meta = s.title && AppComponent.SECTION_MAP[s.title]
+          ? AppComponent.SECTION_MAP[s.title]
+          : { cls: "section-default", numCls: "step-num-default", dotCls: "bullet-dot-default", icon: "file", label: s.title || "" };
+
+        if (s.title === "🗺️ Flow Diagram") {
+          const diagramSteps = content
+            .split("\n")
+            .map(line => line.match(/^(\d+)\.\s+(.+)$/))
+            .filter((m): m is RegExpMatchArray => !!m)
+            .map(m => m[2].trim());
+          return { title: s.title, label: meta.label, icon: meta.icon, cls: meta.cls, diagramSteps };
+        }
+
+        return {
+          title: s.title,
+          label: meta.label,
+          icon: meta.icon,
+          cls: meta.cls,
+          body: this.sanitizer.bypassSecurityTrustHtml(this.renderBody(content, meta))
+        };
+      })
+      .filter((s): s is FlowSection => s !== null);
   }
 
   renderBody(content: string, meta: any): string {
@@ -426,25 +449,6 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
       if (line.trim()) return `<p style="margin:0 0 5px">${this.fmt(line)}</p>`;
       return `<div style="height:4px"></div>`;
     }).join("");
-  }
-
-  renderFlowDiagram(content: string): string {
-    const steps = content
-      .split("\n")
-      .map(line => line.match(/^(\d+)\.\s+(.+)$/))
-      .filter((m): m is RegExpMatchArray => !!m)
-      .map(m => m[2].trim());
-
-    if (!steps.length) return `<p style="margin:0;color:var(--gray-6)">ไม่สามารถสร้างแผนภาพได้จากคำตอบนี้</p>`;
-
-    return `<div class="flow-diagram">${steps.map((step, i) => `
-      <div class="flow-diagram-node">
-        <div class="flow-diagram-box">
-          <span class="flow-diagram-num">${i + 1}</span>
-          <span class="flow-diagram-label">${this.esc(step)}</span>
-        </div>
-        ${i < steps.length - 1 ? `<div class="flow-diagram-arrow"><span class="flow-diagram-chevron"></span></div>` : ''}
-      </div>`).join("")}</div>`;
   }
 
   fmt(s: string): string {
