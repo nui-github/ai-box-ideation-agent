@@ -1,0 +1,207 @@
+<nz-layout class="app-layout">
+  <nz-sider [nzWidth]="250" class="sidebar" [nzCollapsed]="isCollapsed()" [nzCollapsedWidth]="0" [nzTrigger]="null">
+    <div class="sidebar-header">
+      <div class="logo-mark"><lucide-icon name="code" [size]="20"></lucide-icon></div>
+      <div style="flex: 1; min-width: 0;">
+        <div class="logo-text">UX Flow AI</div>
+        <div class="logo-sub">eSignature Designer</div>
+      </div>
+      <button class="btn-icon-small" nz-tooltip nzTooltipTitle="ปิด Panel" (click)="isCollapsed.set(true)">
+        <lucide-icon name="chevron-left" [size]="14"></lucide-icon>
+      </button>
+    </div>
+
+    <div class="sidebar-scrollable">
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Quick Prompts</div>
+        @for (p of prompts(); track p.text) {
+          <button class="nav-item" (click)="usePrompt(p.prompt)">
+            <lucide-icon [name]="p.icon" [size]="18" [strokeWidth]="2"></lucide-icon>
+            <span class="label">{{ p.text }}</span>
+          </button>
+        }
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">System Reference</div>
+        <button class="nav-item" (click)="showInfo('api')"><lucide-icon name="network" [size]="18"></lucide-icon><span class="label">API Endpoints</span></button>
+        <button class="nav-item" (click)="showInfo('dto')"><lucide-icon name="database" [size]="18"></lucide-icon><span class="label">DTO / Data Models</span></button>
+        <button class="nav-item" (click)="showInfo('roles')"><lucide-icon name="shield" [size]="18"></lucide-icon><span class="label">Roles & Permissions</span></button>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="btn-ghost" (click)="openSettings()">
+        <lucide-icon name="settings" [size]="16" style="margin-right:8px"></lucide-icon> ตั้งค่าระบบ
+      </button>
+    </div>
+  </nz-sider>
+
+  <nz-layout class="main-layout">
+    <nz-header class="main-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        @if (isCollapsed()) {
+          <button class="btn-icon" nz-tooltip nzTooltipTitle="เปิด Panel" (click)="isCollapsed.set(false)">
+            <lucide-icon name="menu" [size]="18"></lucide-icon>
+          </button>
+        }
+        <span class="header-title">UX Flow Designer</span>
+      </div>
+      <div class="header-actions">
+        <button class="btn-icon" nz-tooltip [nzTooltipTitle]="isDarkMode() ? 'ใช้ธีมสว่าง' : 'ใช้ธีมมืด'" (click)="toggleTheme()">
+          <lucide-icon [name]="isDarkMode() ? 'sun' : 'moon'" [size]="18"></lucide-icon>
+        </button>
+        <button class="btn-icon" nz-tooltip nzTooltipTitle="Copy last response" (click)="copyLast()"><lucide-icon name="copy" [size]="18"></lucide-icon></button>
+        <button class="btn-icon" nz-tooltip nzTooltipTitle="Reset chat" (click)="newChat()"><lucide-icon name="rotate-ccw" [size]="18"></lucide-icon></button>
+        <button class="btn-icon" nz-tooltip nzTooltipTitle="Settings" (click)="openSettings()"><lucide-icon name="settings" [size]="18"></lucide-icon></button>
+      </div>
+    </nz-header>
+
+    <nz-content class="main-content">
+      <div class="chat-wrap" #chatWrap>
+        @if (messages().length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon"><lucide-icon name="layout-grid" [size]="32" [strokeWidth]="1.5"></lucide-icon></div>
+            <div>
+              <p class="empty-title">ออกแบบ User Flow จาก Requirement</p>
+              <p class="empty-desc">อธิบาย Feature ที่ต้องการ แล้วระบบจะสร้าง User Flow อย่างละเอียด<br>โดยอ้างอิง API, DTO, และ Business Logic ของระบบ eSignature จริง</p>
+            </div>
+            <div class="empty-chips">
+              <span class="chip" (click)="usePrompt(prompts()[0].prompt)"><lucide-icon [name]="prompts()[0].icon" [size]="14"></lucide-icon> {{ prompts()[0].text }}</span>
+              <span class="chip" (click)="usePrompt(prompts()[1].prompt)"><lucide-icon [name]="prompts()[1].icon" [size]="14"></lucide-icon> {{ prompts()[1].text }}</span>
+              <span class="chip" (click)="usePrompt(prompts()[2].prompt)"><lucide-icon [name]="prompts()[2].icon" [size]="14"></lucide-icon> {{ prompts()[2].text }}</span>
+              <span class="chip" (click)="usePrompt(prompts()[3].prompt)"><lucide-icon [name]="prompts()[3].icon" [size]="14"></lucide-icon> {{ prompts()[3].text }}</span>
+              <span class="chip" (click)="usePrompt(prompts()[4].prompt)"><lucide-icon [name]="prompts()[4].icon" [size]="14"></lucide-icon> {{ prompts()[4].text }}</span>
+            </div>
+          </div>
+        } @else {
+          <div class="messages">
+            @for (msg of messages(); track $index) {
+              <div class="msg" [class.msg-user]="msg.role === 'user'">
+                <div class="avatar" [class.avatar-user]="msg.role === 'user'" [class.avatar-ai]="msg.role !== 'user'">
+                  <lucide-icon [name]="msg.role === 'user' ? 'user' : 'bot'" [size]="20"></lucide-icon>
+                </div>
+                
+                @if (msg.role === 'user') {
+                  <div class="bubble-user">{{ msg.content }}</div>
+                } @else {
+                  <div class="result-wrap">
+                    <p class="msg-meta"><lucide-icon name="layout-grid" [size]="14" style="margin-right:4px"></lucide-icon> UX Flow Designer · eSignature System</p>
+                    @if (msg.isHtml) {
+                      <div class="ai-content" [innerHTML]="msg.content"></div>
+                    } @else {
+                      <div class="ai-content">{{ msg.content }}</div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            @if (isAnalyzing()) {
+              <div class="msg">
+                <div class="avatar avatar-ai">
+                  <lucide-icon name="bot" [size]="20"></lucide-icon>
+                </div>
+                <div class="thinking">
+                  <div class="thinking-dots">
+                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                  </div>
+                  <span style="font-size:12px;color:var(--gray-7);margin-left:6px">กำลังวิเคราะห์ Requirement...</span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </nz-content>
+
+    <div class="main-footer">
+      <div class="footer-inner">
+        @if (messages().length > 0) {
+          <div class="quick-tags">
+            <span class="qtag" (click)="usePrompt(prompts()[0].prompt)"><lucide-icon [name]="prompts()[0].icon" [size]="12"></lucide-icon> {{ prompts()[0].text }}</span>
+            <span class="qtag" (click)="usePrompt(prompts()[1].prompt)"><lucide-icon [name]="prompts()[1].icon" [size]="12"></lucide-icon> {{ prompts()[1].text }}</span>
+            <span class="qtag" (click)="usePrompt(prompts()[2].prompt)"><lucide-icon [name]="prompts()[2].icon" [size]="12"></lucide-icon> {{ prompts()[2].text }}</span>
+          </div>
+        }
+        <div class="input-box">
+          <textarea 
+            nz-input
+            [formControl]="messageInputControl"
+            placeholder="อธิบาย Feature หรือ Requirement ใหม่ที่ต้องการออกแบบ User Flow..." 
+            [nzAutosize]="{ minRows: 1, maxRows: 5 }"
+            (keydown)="handleKeydown($event)"
+            class="msg-input"
+          ></textarea>
+          <button class="send-btn" [disabled]="!messageInputControl.value?.trim() || isAnalyzing()" (click)="sendMessage()">
+            <lucide-icon name="send" [size]="18"></lucide-icon>
+          </button>
+        </div>
+        <div class="input-hint">
+          <span>Ctrl + Enter เพื่อส่ง · รองรับการถามต่อเนื่อง</span>
+          <span>อ้างอิง API & DTO จากระบบ eSignature จริง</span>
+        </div>
+      </div>
+    </div>
+  </nz-layout>
+</nz-layout>
+
+<nz-modal [(nzVisible)]="isSettingsVisible" nzTitle="ตั้งค่าระบบ" (nzOnCancel)="closeSettings()" (nzOnOk)="saveSettings()" [nzOkText]="'บันทึกการตั้งค่า'" [nzCancelText]="'ยกเลิก'" [nzWidth]="640">
+  <ng-container *nzModalContent>
+    <div class="form-group" style="margin-bottom: 24px;">
+      <label class="form-label" style="display:block;margin-bottom:8px;font-weight:500;">เลือก Model AI</label>
+      <nz-select [formControl]="modelPrefControl" style="width: 100%;">
+        @for (model of availableModels(); track model.model) {
+          <nz-option [nzValue]="model.model" [nzLabel]="model.model"></nz-option>
+        }
+      </nz-select>
+    </div>
+
+    <!-- Usage info cards -->
+    <div class="model-usage-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+       @for (model of availableModels(); track model.model) {
+         <div class="model-card" [class.active-model]="modelPrefControl.value === model.model" style="border: 1px solid var(--border-color); padding: 12px; border-radius: 8px;">
+            <div style="font-weight: 600; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">
+              {{ model.model }}
+              @if (modelPrefControl.value === model.model) {
+                <nz-tag nzColor="blue">ที่เลือก</nz-tag>
+              }
+            </div>
+            
+            @if (model.lockedUntil && now() < model.lockedUntil) {
+               <div style="color: #cf1322; font-size: 13px; font-weight: 500;"><lucide-icon name="alert-circle" [size]="14" style="margin-right:4px"></lucide-icon> ใช้งานเกินโควต้า</div>
+               <div style="color: #cf1322; font-size: 12px;">กลับมาใช้ได้ในอีก: {{ getSeconds(model.lockedUntil) }}s</div>
+            } @else {
+               <div style="color: #389e0d; font-size: 13px; font-weight: 500;"><lucide-icon name="check-circle" [size]="14" style="margin-right:4px"></lucide-icon> จำนวนที่ใช้ได้: {{ model.remaining }} / {{ model.max }} RPM</div>
+               <div style="color: #8c8c8c; font-size: 12px;">โควต้ารีเซ็ตใน: {{ getSeconds(model.resetAt) }}s</div>
+            }
+         </div>
+       }
+    </div>
+
+    <nz-divider></nz-divider>
+
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label class="form-label" style="display:block;margin-bottom:8px;font-weight:500;">ภาษาของผลลัพธ์</label>
+      <nz-select [formControl]="langPrefControl" style="width: 100%;">
+        <nz-option nzValue="th" nzLabel="ภาษาไทย (แนะนำ)"></nz-option>
+        <nz-option nzValue="en" nzLabel="English"></nz-option>
+      </nz-select>
+    </div>
+  </ng-container>
+</nz-modal>
+
+<nz-drawer
+  [nzVisible]="isDrawerVisible()"
+  nzPlacement="right"
+  [nzTitle]="drawerTitle()"
+  (nzOnClose)="closeDrawer()"
+  [nzWidth]="420"
+>
+  <ng-container *nzDrawerContent>
+    <div class="drawer-content" [innerHTML]="drawerContent()"></div>
+  </ng-container>
+</nz-drawer>
+

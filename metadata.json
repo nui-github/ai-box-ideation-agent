@@ -1,0 +1,8 @@
+{
+  "name": "AI Design Agent",
+  "description": "Internal tool for Product & UX/UI Designer to generate flow using Agent.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
