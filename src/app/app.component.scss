@@ -226,7 +226,32 @@
   .section-alert .section-card-head { background: var(--alert-head-bg); color: var(--alert-text); }
   .section-ui { border-color: var(--ui-border); background: var(--ui-bg); }
   .section-ui .section-card-head { background: var(--ui-head-bg); color: var(--ui-text); }
-  
+  .section-diagram { border-color: var(--ui-border); background: var(--ui-bg); }
+  .section-diagram .section-card-head { background: var(--ui-head-bg); color: var(--ui-text); }
+
+  /* Flow diagram (steps as connected boxes) */
+  .flow-diagram { display: flex; flex-wrap: wrap; align-items: center; gap: 0; }
+  .flow-diagram-node { display: flex; align-items: center; }
+  .flow-diagram-box {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; border-radius: 8px;
+    background: var(--bg-card); border: 1.5px solid var(--ui-border);
+    max-width: 180px; margin: 4px 0;
+  }
+  .flow-diagram-num {
+    min-width: 20px; height: 20px; border-radius: 50%;
+    background: var(--ui-text); color: #fff;
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .flow-diagram-label { font-size: 12.5px; line-height: 1.4; color: var(--text-primary); }
+  .flow-diagram-arrow { display: flex; align-items: center; justify-content: center; width: 24px; flex-shrink: 0; }
+  .flow-diagram-chevron {
+    width: 8px; height: 8px;
+    border-top: 2px solid var(--ui-border); border-right: 2px solid var(--ui-border);
+    transform: rotate(45deg);
+  }
+
   /* Numbered steps & bullets */
   .step-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-start; }
   .step-num { min-width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; flex-shrink: 0; margin-top: 1px; }

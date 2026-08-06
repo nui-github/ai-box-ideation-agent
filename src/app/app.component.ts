@@ -374,6 +374,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   renderMD(text: string): string {
     const sectionMap: Record<string, {cls: string, numCls: string, dotCls: string, icon: string}> = {
       "📋 User Flow":       { cls: "section-flow",     numCls: "step-num-flow",     dotCls: "bullet-dot-flow", icon: "file-text" },
+      "🗺️ Flow Diagram":   { cls: "section-diagram",   numCls: "step-num-diagram",  dotCls: "bullet-dot-diagram", icon: "map" },
       "🔍 Flow Analysis":   { cls: "section-analysis",  numCls: "step-num-analysis", dotCls: "bullet-dot-analysis", icon: "lightbulb" },
       "⚖️ Pros & Cons":    { cls: "section-pros",      numCls: "step-num-pros",     dotCls: "bullet-dot-pros", icon: "square" },
       "⚠️ Technical Alert": { cls: "section-alert",     numCls: "step-num-alert",    dotCls: "bullet-dot-alert", icon: "alert-circle" },
@@ -402,7 +403,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
       if (!content && !s.title) return "";
       
       const meta = s.title && sectionMap[s.title] ? sectionMap[s.title] : { cls: "section-default", numCls: "step-num-default", dotCls: "bullet-dot-default", icon: "file" };
-      const bodyHTML = this.renderBody(content, meta);
+      const bodyHTML = s.title === "🗺️ Flow Diagram" ? this.renderFlowDiagram(content) : this.renderBody(content, meta);
       
       if (!s.title) return `<div style="font-size:13.5px;line-height:1.7;margin-bottom:10px">${bodyHTML}</div>`;
       
@@ -425,6 +426,25 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
       if (line.trim()) return `<p style="margin:0 0 5px">${this.fmt(line)}</p>`;
       return `<div style="height:4px"></div>`;
     }).join("");
+  }
+
+  renderFlowDiagram(content: string): string {
+    const steps = content
+      .split("\n")
+      .map(line => line.match(/^(\d+)\.\s+(.+)$/))
+      .filter((m): m is RegExpMatchArray => !!m)
+      .map(m => m[2].trim());
+
+    if (!steps.length) return `<p style="margin:0;color:var(--gray-6)">ไม่สามารถสร้างแผนภาพได้จากคำตอบนี้</p>`;
+
+    return `<div class="flow-diagram">${steps.map((step, i) => `
+      <div class="flow-diagram-node">
+        <div class="flow-diagram-box">
+          <span class="flow-diagram-num">${i + 1}</span>
+          <span class="flow-diagram-label">${this.esc(step)}</span>
+        </div>
+        ${i < steps.length - 1 ? `<div class="flow-diagram-arrow"><span class="flow-diagram-chevron"></span></div>` : ''}
+      </div>`).join("")}</div>`;
   }
 
   fmt(s: string): string {
