@@ -19,6 +19,7 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
+import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { LucideAngularModule } from 'lucide-angular';
 
 import { UxFlowService } from './services/ux-flow.service';
@@ -58,6 +59,7 @@ interface Message {
     NzDividerModule,
     NzTagModule,
     NzDrawerModule,
+    NzTabsModule,
     LucideAngularModule
   ],
   templateUrl: './app.component.html',
@@ -68,6 +70,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   @ViewChild('chatWrap') private chatWrap!: ElementRef;
   @ViewChild('diagramCanvas') private diagramCanvas?: ElementRef<HTMLElement>;
   @ViewChild('diagramStage') private diagramStage?: ElementRef<HTMLElement>;
+  @ViewChild('logicFileInput') private logicFileInput?: ElementRef<HTMLInputElement>;
 
   private http = inject(HttpClient);
   private msg = inject(NzMessageService);
@@ -103,8 +106,6 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   drawerContent = signal<SafeHtml|null>(null);
 
   businessLogicEntries = signal<{ id: string, title: string, content: string }[]>([]);
-  newLogicTitle = new FormControl('');
-  newLogicContent = new FormControl('');
   isAddingLogic = signal(false);
 
   isDiagramModalVisible = signal(false);
@@ -275,24 +276,29 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     });
   }
 
-  addBusinessLogic() {
-    const title = this.newLogicTitle.value?.trim();
-    const content = this.newLogicContent.value?.trim();
-    if (!title || !content) return;
+  triggerLogicFileUpload() {
+    this.logicFileInput?.nativeElement.click();
+  }
+
+  async onLogicFilesSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files || []);
+    if (!files.length) return;
 
     this.isAddingLogic.set(true);
-    this.http.post<{ id: string, title: string, content: string }>('/api/business-logic', { title, content }).subscribe({
-      next: (entry) => {
+    for (const file of files) {
+      try {
+        const content = await file.text();
+        const entry = await firstValueFrom(
+          this.http.post<{ id: string, title: string, content: string }>('/api/business-logic', { title: file.name, content })
+        );
         this.businessLogicEntries.update(list => [...list, entry]);
-        this.newLogicTitle.setValue('');
-        this.newLogicContent.setValue('');
-        this.isAddingLogic.set(false);
-      },
-      error: () => {
-        this.msg.error('เพิ่ม Business Logic ไม่สำเร็จ');
-        this.isAddingLogic.set(false);
+      } catch {
+        this.msg.error(`อัปโหลด ${file.name} ไม่สำเร็จ`);
       }
-    });
+    }
+    this.isAddingLogic.set(false);
+    input.value = '';
   }
 
   removeBusinessLogic(id: string) {

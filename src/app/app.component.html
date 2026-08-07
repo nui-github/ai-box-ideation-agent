@@ -177,78 +177,86 @@
   [nzFooter]="settingsFooter"
 >
   <ng-container *nzDrawerContent>
-    <div class="settings-drawer-body">
-      <div class="form-group" style="margin-bottom: 24px;">
-        <label class="form-label" style="display:block;margin-bottom:8px;font-weight:500;">เลือก Model AI</label>
-        <nz-select [formControl]="modelPrefControl" style="width: 100%;">
-          @for (model of availableModels(); track model.model) {
-            <nz-option [nzValue]="model.model" [nzLabel]="model.model"></nz-option>
-          }
-        </nz-select>
-      </div>
-
-      <!-- Usage info cards -->
-      <div class="model-usage-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-         @for (model of availableModels(); track model.model) {
-           <div class="model-card" [class.active-model]="modelPrefControl.value === model.model" style="border: 1px solid var(--border-color); padding: 12px; border-radius: 8px;">
-              <div style="font-weight: 600; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">
-                {{ model.model }}
-                @if (modelPrefControl.value === model.model) {
-                  <nz-tag nzColor="blue">ที่เลือก</nz-tag>
-                }
-              </div>
-
-              @if (model.lockedUntil && now() < model.lockedUntil) {
-                 <div style="color: #cf1322; font-size: 13px; font-weight: 500;"><lucide-icon name="alert-circle" [size]="14" style="margin-right:4px"></lucide-icon> ใช้งานเกินโควต้า</div>
-                 <div style="color: #cf1322; font-size: 12px;">กลับมาใช้ได้ในอีก: {{ getSeconds(model.lockedUntil) }}s</div>
-              } @else {
-                 <div style="color: #389e0d; font-size: 13px; font-weight: 500;"><lucide-icon name="check-circle" [size]="14" style="margin-right:4px"></lucide-icon> จำนวนที่ใช้ได้: {{ model.remaining }} / {{ model.max }} RPM</div>
-                 <div style="color: #8c8c8c; font-size: 12px;">โควต้ารีเซ็ตใน: {{ getSeconds(model.resetAt) }}s</div>
+    <nz-tabset class="settings-tabs">
+      <nz-tab nzTitle="ทั่วไป">
+        <div class="settings-drawer-body">
+          <div class="form-group" style="margin-bottom: 24px;">
+            <label class="form-label" style="display:block;margin-bottom:8px;font-weight:500;">เลือก Model AI</label>
+            <nz-select [formControl]="modelPrefControl" style="width: 100%;">
+              @for (model of availableModels(); track model.model) {
+                <nz-option [nzValue]="model.model" [nzLabel]="model.model"></nz-option>
               }
-           </div>
-         }
-      </div>
+            </nz-select>
+          </div>
 
-      <nz-divider></nz-divider>
+          <!-- Usage info cards -->
+          <div class="model-usage-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+             @for (model of availableModels(); track model.model) {
+               <div class="model-card" [class.active-model]="modelPrefControl.value === model.model" style="border: 1px solid var(--border-color); padding: 12px; border-radius: 8px;">
+                  <div style="font-weight: 600; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">
+                    {{ model.model }}
+                    @if (modelPrefControl.value === model.model) {
+                      <nz-tag nzColor="blue">ที่เลือก</nz-tag>
+                    }
+                  </div>
 
-      <div class="form-group" style="margin-bottom: 24px;">
-        <label class="form-label" style="display:block;margin-bottom:8px;font-weight:500;">ภาษาของผลลัพธ์</label>
-        <nz-select [formControl]="langPrefControl" style="width: 100%;">
-          <nz-option nzValue="th" nzLabel="ภาษาไทย (แนะนำ)"></nz-option>
-          <nz-option nzValue="en" nzLabel="English"></nz-option>
-        </nz-select>
-      </div>
+                  @if (model.lockedUntil && now() < model.lockedUntil) {
+                     <div style="color: #cf1322; font-size: 13px; font-weight: 500;"><lucide-icon name="alert-circle" [size]="14" style="margin-right:4px"></lucide-icon> ใช้งานเกินโควต้า</div>
+                     <div style="color: #cf1322; font-size: 12px;">กลับมาใช้ได้ในอีก: {{ getSeconds(model.lockedUntil) }}s</div>
+                  } @else {
+                     <div style="color: #389e0d; font-size: 13px; font-weight: 500;"><lucide-icon name="check-circle" [size]="14" style="margin-right:4px"></lucide-icon> จำนวนที่ใช้ได้: {{ model.remaining }} / {{ model.max }} RPM</div>
+                     <div style="color: #8c8c8c; font-size: 12px;">โควต้ารีเซ็ตใน: {{ getSeconds(model.resetAt) }}s</div>
+                  }
+               </div>
+             }
+          </div>
 
-      <nz-divider></nz-divider>
+          <nz-divider></nz-divider>
 
-      <div class="form-group">
-        <label class="form-label" style="display:block;margin-bottom:8px;font-weight:500;">Business Logic (ข้อมูลระบบสำหรับให้ AI อ้างอิง)</label>
+          <div class="form-group">
+            <label class="form-label" style="display:block;margin-bottom:8px;font-weight:500;">ภาษาของผลลัพธ์</label>
+            <nz-select [formControl]="langPrefControl" style="width: 100%;">
+              <nz-option nzValue="th" nzLabel="ภาษาไทย (แนะนำ)"></nz-option>
+              <nz-option nzValue="en" nzLabel="English"></nz-option>
+            </nz-select>
+          </div>
+        </div>
+      </nz-tab>
 
-        <div class="logic-list">
-          @for (item of businessLogicEntries(); track item.id) {
-            <div class="logic-item">
-              <div class="logic-item-main">
-                <div class="logic-item-title">{{ item.title }}</div>
-                <div class="logic-item-content">{{ item.content }}</div>
-              </div>
-              <button class="logic-item-delete" nz-tooltip nzTooltipTitle="ลบ" (click)="removeBusinessLogic(item.id)">
-                <lucide-icon name="trash-2" [size]="14"></lucide-icon>
-              </button>
+      <nz-tab nzTitle="Business Logic">
+        <div class="settings-drawer-body">
+          <div class="form-group">
+            <label class="form-label" style="display:block;margin-bottom:8px;font-weight:500;">อัปโหลดไฟล์ Logic ของระบบ AI Box</label>
+            <p style="font-size:12.5px;color:var(--gray-6);margin-bottom:12px;">อัปโหลดไฟล์ .txt หรือ .md ที่อธิบาย Business Logic ของ Platform เพื่อให้ AI นำไปอ้างอิงตอนออกแบบ Flow</p>
+
+            <input #logicFileInput type="file" accept=".txt,.md" multiple hidden (change)="onLogicFilesSelected($event)" />
+            <button nz-button nzType="dashed" style="width:100%;" [disabled]="isAddingLogic()" (click)="triggerLogicFileUpload()">
+              <lucide-icon name="upload" [size]="14" style="margin-right:6px;"></lucide-icon>
+              {{ isAddingLogic() ? 'กำลังอัปโหลด...' : 'เลือกไฟล์ .txt / .md' }}
+            </button>
+
+            <nz-divider></nz-divider>
+
+            <label class="form-label" style="display:block;margin-bottom:8px;font-weight:500;">รายการที่เพิ่มแล้ว</label>
+            <div class="logic-list">
+              @for (item of businessLogicEntries(); track item.id) {
+                <div class="logic-item">
+                  <div class="logic-item-main">
+                    <div class="logic-item-title">{{ item.title }}</div>
+                    <div class="logic-item-content">{{ item.content }}</div>
+                  </div>
+                  <button class="logic-item-delete" nz-tooltip nzTooltipTitle="ลบ" (click)="removeBusinessLogic(item.id)">
+                    <lucide-icon name="trash-2" [size]="14"></lucide-icon>
+                  </button>
+                </div>
+              } @empty {
+                <div class="logic-empty">ยังไม่มีข้อมูล Business Logic ที่เพิ่มเอง</div>
+              }
             </div>
-          } @empty {
-            <div class="logic-empty">ยังไม่มีข้อมูล Business Logic ที่เพิ่มเอง</div>
-          }
+          </div>
         </div>
-
-        <div class="logic-add-form">
-          <input nz-input placeholder="หัวข้อ เช่น กฎการอนุมัติเอกสาร" [formControl]="newLogicTitle" />
-          <textarea nz-input placeholder="รายละเอียด logic ที่ต้องการให้ AI ใช้อ้างอิง" [formControl]="newLogicContent" rows="2"></textarea>
-          <button nz-button nzType="dashed" [disabled]="!newLogicTitle.value?.trim() || !newLogicContent.value?.trim() || isAddingLogic()" (click)="addBusinessLogic()">
-            <lucide-icon name="plus" [size]="14" style="margin-right:4px"></lucide-icon> เพิ่ม Business Logic
-          </button>
-        </div>
-      </div>
-    </div>
+      </nz-tab>
+    </nz-tabset>
   </ng-container>
 </nz-drawer>
 
