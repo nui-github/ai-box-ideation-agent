@@ -345,7 +345,12 @@
   width: 36px; height: 36px; border-radius: 6px; background: var(--primary-color);
   border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; transition: background 0.15s ease; color: #fff;
-  
+
+  lucide-icon, ::ng-deep lucide-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    transform: translate(-1px, 1px);
+  }
+
   &:hover:not(:disabled) { background: #0352c7; }
   &:disabled { background: var(--gray-4); color: var(--gray-6); cursor: not-allowed; }
 }
