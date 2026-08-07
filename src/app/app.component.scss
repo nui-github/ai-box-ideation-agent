@@ -240,7 +240,7 @@
   /* Mermaid flow diagram */
   .mermaid-diagram-wrap {
     overflow: auto; max-height: 320px; padding: 18px;
-    display: flex; justify-content: center;
+    display: flex; justify-content: safe center; align-items: safe center;
     background-color: var(--diagram-canvas-bg);
     background-image: radial-gradient(var(--diagram-dot-color) 1px, transparent 1px);
     background-size: 18px 18px;
@@ -249,9 +249,9 @@
   }
   .mermaid-diagram-wrap:hover { box-shadow: inset 0 0 0 1.5px var(--ui-border); }
   .mermaid-diagram-wrap svg { max-width: none; }
-  .mermaid-diagram-wrap > div { margin: auto; }
 
   /* Flow diagram expanded modal */
+  .diagram-modal.ant-modal { top: 24px; padding-bottom: 24px; }
   .diagram-modal .ant-modal-body { padding: 12px 20px 20px; }
   .diagram-modal-toolbar {
     display: flex; align-items: center; justify-content: center; gap: 4px;
@@ -266,7 +266,7 @@
   .diagram-modal-toolbar .btn-icon-small:not(:disabled):hover { border-color: var(--primary-color); color: var(--primary-color); }
   .diagram-zoom-label { min-width: 48px; text-align: center; font-size: 13px; font-weight: 600; color: var(--text-primary); margin: 0 4px; }
   .diagram-modal-canvas {
-    overflow: auto; max-height: 75vh; padding: 32px;
+    overflow: auto; height: calc(100vh - 190px); padding: 32px;
     background-color: var(--diagram-canvas-bg);
     background-image: radial-gradient(var(--diagram-dot-color) 1px, transparent 1px);
     background-size: 20px 20px;

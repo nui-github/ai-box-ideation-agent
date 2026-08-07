@@ -66,6 +66,8 @@ interface Message {
 })
 export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   @ViewChild('chatWrap') private chatWrap!: ElementRef;
+  @ViewChild('diagramCanvas') private diagramCanvas?: ElementRef<HTMLElement>;
+  @ViewChild('diagramStage') private diagramStage?: ElementRef<HTMLElement>;
 
   private http = inject(HttpClient);
   private msg = inject(NzMessageService);
@@ -204,11 +206,30 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   }
 
   zoomOut() {
-    this.diagramZoom.update(z => Math.max(0.5, +(z - 0.25).toFixed(2)));
+    this.diagramZoom.update(z => Math.max(0.25, +(z - 0.25).toFixed(2)));
   }
 
-  resetZoom() {
-    this.diagramZoom.set(1);
+  onDiagramModalOpen() {
+    this.fitDiagramWidth();
+  }
+
+  /** Scales the diagram so its natural (unscaled) width fills the canvas, so a huge flowchart isn't rendered at a cramped 100%. */
+  fitDiagramWidth() {
+    const canvasEl = this.diagramCanvas?.nativeElement;
+    const svgEl = this.diagramStage?.nativeElement.querySelector('svg') as SVGSVGElement | null;
+    if (!canvasEl || !svgEl) return;
+
+    // Read the SVG's own coordinate-space width (viewBox), not its rendered box —
+    // the rendered box is ambiguous right after the modal opens (width:100% inside
+    // an inline-block parent resolves to 0 before the browser's next layout pass).
+    const naturalWidth = svgEl.viewBox?.baseVal?.width || svgEl.getBoundingClientRect().width || svgEl.scrollWidth;
+    if (!naturalWidth) return;
+
+    const canvasStyle = getComputedStyle(canvasEl);
+    const availableWidth = canvasEl.clientWidth - parseFloat(canvasStyle.paddingLeft) - parseFloat(canvasStyle.paddingRight);
+
+    const fitScale = Math.min(2.5, Math.max(0.25, +(availableWidth / naturalWidth).toFixed(2)));
+    this.diagramZoom.set(fitScale);
   }
 
   newChat() {
@@ -495,7 +516,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
       if (!svgHtml) {
         try {
           const { svg } = await mermaid.render(`mermaid-${this.mermaidIdCounter++}`, section.mermaidCode);
-          svgHtml = this.sanitizer.bypassSecurityTrustHtml(svg);
+          svgHtml = this.sanitizer.bypassSecurityTrustHtml(this.sizeSvgFromViewBox(svg));
         } catch (e) {
           svgHtml = this.sanitizer.bypassSecurityTrustHtml(`<p style="margin:0;color:var(--gray-6)">ไม่สามารถแสดงแผนภาพได้ (รูปแบบไม่ถูกต้อง)</p>`);
         }
@@ -503,6 +524,27 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
       }
       section.body = svgHtml;
     }
+  }
+
+  /**
+   * Mermaid emits `width="100%"` on the root <svg>, which is ambiguous inside a
+   * shrink-to-fit container (our modal's zoomable stage) and can collapse to ~0
+   * before the browser's next layout pass. Bake an explicit pixel width/height
+   * from the viewBox so the SVG always has a definite intrinsic size.
+   */
+  private sizeSvgFromViewBox(svgString: string): string {
+    const viewBoxMatch = svgString.match(/viewBox="[\d.\-]+\s+[\d.\-]+\s+([\d.]+)\s+([\d.]+)"/);
+    if (!viewBoxMatch) return svgString;
+    const [, width, height] = viewBoxMatch;
+
+    // Mermaid's <svg> may carry width="100%" and no explicit height at all. Strip
+    // whatever sizing attributes are present (there may be zero, one, or both) and
+    // insert a definite pixel width/height so the box is never ambiguous.
+    return svgString.replace(/^<svg\b[^>]*>/, openTag =>
+      openTag
+        .replace(/\s(width|height)="[^"]*"/g, '')
+        .replace(/^<svg/, `<svg width="${width}" height="${height}"`)
+    );
   }
 
   renderBody(content: string, meta: any): string {

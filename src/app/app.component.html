@@ -233,24 +233,26 @@
   nzTitle="Flow Diagram"
   [nzFooter]="null"
   [nzWidth]="'92vw'"
+  [nzStyle]="{ top: '24px' }"
   nzClassName="diagram-modal"
   (nzOnCancel)="closeDiagramModal()"
+  (nzAfterOpen)="onDiagramModalOpen()"
 >
   <ng-container *nzModalContent>
     <div class="diagram-modal-toolbar">
-      <button class="btn-icon-small" nz-tooltip nzTooltipTitle="ย่อ" [disabled]="diagramZoom() <= 0.5" (click)="zoomOut()">
+      <button class="btn-icon-small" nz-tooltip nzTooltipTitle="ย่อ" [disabled]="diagramZoom() <= 0.25" (click)="zoomOut()">
         <lucide-icon name="zoom-out" [size]="16"></lucide-icon>
       </button>
       <span class="diagram-zoom-label">{{ (diagramZoom() * 100).toFixed(0) }}%</span>
       <button class="btn-icon-small" nz-tooltip nzTooltipTitle="ขยาย" [disabled]="diagramZoom() >= 2.5" (click)="zoomIn()">
         <lucide-icon name="zoom-in" [size]="16"></lucide-icon>
       </button>
-      <button class="btn-icon-small" nz-tooltip nzTooltipTitle="รีเซ็ตขนาด" (click)="resetZoom()">
+      <button class="btn-icon-small" nz-tooltip nzTooltipTitle="พอดีความกว้าง" (click)="fitDiagramWidth()">
         <lucide-icon name="rotate-ccw" [size]="14"></lucide-icon>
       </button>
     </div>
-    <div class="diagram-modal-canvas">
-      <div class="diagram-modal-stage" [style.transform]="'scale(' + diagramZoom() + ')'" [innerHTML]="diagramModalSvg()"></div>
+    <div class="diagram-modal-canvas" #diagramCanvas>
+      <div class="diagram-modal-stage" #diagramStage [style.transform]="'scale(' + diagramZoom() + ')'" [innerHTML]="diagramModalSvg()"></div>
     </div>
   </ng-container>
 </nz-modal>
