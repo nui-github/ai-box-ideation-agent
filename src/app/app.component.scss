@@ -239,8 +239,7 @@
 
   /* Mermaid flow diagram */
   .mermaid-diagram-wrap {
-    overflow: auto; max-height: 320px; padding: 18px;
-    display: flex; justify-content: safe center; align-items: safe center;
+    overflow: auto; max-height: 420px; padding: 18px;
     background-color: var(--diagram-canvas-bg);
     background-image: radial-gradient(var(--diagram-dot-color) 1px, transparent 1px);
     background-size: 18px 18px;
@@ -248,7 +247,11 @@
     transition: box-shadow 0.15s;
   }
   .mermaid-diagram-wrap:hover { box-shadow: inset 0 0 0 1.5px var(--ui-border); }
-  .mermaid-diagram-wrap svg { max-width: none; }
+  /* Scale the diagram to the card's width by default (fit-width), same starting
+     view as the expand modal — the explicit width/height baked onto the <svg>
+     (see sizeSvgFromViewBox) makes its intrinsic aspect ratio well-defined, so
+     width:100% + height:auto scales it proportionally with no JS needed here. */
+  .mermaid-diagram-wrap svg { width: 100%; height: auto; display: block; }
 
   /* Flow diagram expanded modal */
   .diagram-modal.ant-modal { top: 24px; padding-bottom: 24px; }
