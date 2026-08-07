@@ -100,6 +100,10 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   drawerTitle = signal('');
   drawerContent = signal<SafeHtml|null>(null);
 
+  isDiagramModalVisible = signal(false);
+  diagramModalSvg = signal<SafeHtml | null>(null);
+  diagramZoom = signal(1);
+
   ngOnInit() {
     this.uxFlowService.getPrompts().subscribe(data => this.prompts.set(data));
     this.uxFlowService.getInfoTexts().subscribe(data => this.infoTexts.set(data));
@@ -182,6 +186,29 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
 
   closeDrawer() {
     this.isDrawerVisible.set(false);
+  }
+
+  openDiagramModal(svg: SafeHtml | undefined) {
+    if (!svg) return;
+    this.diagramModalSvg.set(svg);
+    this.diagramZoom.set(1);
+    this.isDiagramModalVisible.set(true);
+  }
+
+  closeDiagramModal() {
+    this.isDiagramModalVisible.set(false);
+  }
+
+  zoomIn() {
+    this.diagramZoom.update(z => Math.min(2.5, +(z + 0.25).toFixed(2)));
+  }
+
+  zoomOut() {
+    this.diagramZoom.update(z => Math.max(0.5, +(z - 0.25).toFixed(2)));
+  }
+
+  resetZoom() {
+    this.diagramZoom.set(1);
   }
 
   newChat() {

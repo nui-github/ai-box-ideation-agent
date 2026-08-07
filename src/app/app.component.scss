@@ -213,7 +213,15 @@
 ::ng-deep {
   /* Section Cards */
   .section-card { border-radius: 8px; border: 1px solid; margin-bottom: 10px; overflow: hidden; background: var(--bg-card); }
-  .section-card-head { padding: 10px 16px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+  .section-card-head { padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 600; }
+  .section-card-head-left { display: flex; align-items: center; gap: 8px; }
+  .diagram-expand-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 6px; border: none;
+    background: transparent; color: inherit; opacity: 0.65; cursor: pointer;
+    transition: opacity 0.15s, background 0.15s;
+  }
+  .diagram-expand-btn:hover { opacity: 1; background: rgba(0,0,0,0.06); }
   .section-card-body { padding: 14px 16px; font-size: 13.5px; line-height: 1.7; color: var(--text-primary); }
   
   .section-flow { border-color: var(--flow-border); background: var(--flow-bg); }
@@ -230,8 +238,41 @@
   .section-diagram .section-card-head { background: var(--ui-head-bg); color: var(--ui-text); }
 
   /* Mermaid flow diagram */
-  .mermaid-diagram-wrap { overflow-x: auto; padding: 4px 0; }
+  .mermaid-diagram-wrap {
+    overflow: auto; max-height: 320px; padding: 18px;
+    display: flex; justify-content: center;
+    background-color: var(--diagram-canvas-bg);
+    background-image: radial-gradient(var(--diagram-dot-color) 1px, transparent 1px);
+    background-size: 18px 18px;
+    border-radius: 8px; cursor: zoom-in;
+    transition: box-shadow 0.15s;
+  }
+  .mermaid-diagram-wrap:hover { box-shadow: inset 0 0 0 1.5px var(--ui-border); }
   .mermaid-diagram-wrap svg { max-width: none; }
+  .mermaid-diagram-wrap > div { margin: auto; }
+
+  /* Flow diagram expanded modal */
+  .diagram-modal .ant-modal-body { padding: 12px 20px 20px; }
+  .diagram-modal-toolbar {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color);
+  }
+  .diagram-modal-toolbar .btn-icon-small {
+    width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border-color);
+    background: var(--bg-card); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--text-primary);
+  }
+  .diagram-modal-toolbar .btn-icon-small:disabled { opacity: 0.4; cursor: not-allowed; }
+  .diagram-modal-toolbar .btn-icon-small:not(:disabled):hover { border-color: var(--primary-color); color: var(--primary-color); }
+  .diagram-zoom-label { min-width: 48px; text-align: center; font-size: 13px; font-weight: 600; color: var(--text-primary); margin: 0 4px; }
+  .diagram-modal-canvas {
+    overflow: auto; max-height: 75vh; padding: 32px;
+    background-color: var(--diagram-canvas-bg);
+    background-image: radial-gradient(var(--diagram-dot-color) 1px, transparent 1px);
+    background-size: 20px 20px;
+    border-radius: 8px;
+  }
+  .diagram-modal-stage { display: inline-block; transform-origin: 0 0; transition: transform 0.15s ease-out; }
 
   /* Numbered steps & bullets */
   .step-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-start; }
