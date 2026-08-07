@@ -9,7 +9,7 @@ import {
   Square, BarChart2, Users, Share2, Link, Bell, Download, Send,
   File, Lightbulb, LayoutGrid, XCircle, FileText, RotateCcw,
   Menu, ChevronLeft, Sun, Moon,
-  Map as MapIcon, Scale, TriangleAlert, Palette, ArrowRight
+  Map as MapIcon, Scale, TriangleAlert, Palette
 } from 'lucide-angular';
 
 bootstrapApplication(AppComponent, {
@@ -23,7 +23,7 @@ bootstrapApplication(AppComponent, {
         Square, BarChart2, Users, Share2, Link, Bell, Download, Send,
         File, Lightbulb, LayoutGrid, XCircle, FileText, RotateCcw,
         Menu, ChevronLeft, Sun, Moon,
-        Map: MapIcon, Scale, TriangleAlert, Palette, ArrowRight
+        Map: MapIcon, Scale, TriangleAlert, Palette
       })
     )
   ]

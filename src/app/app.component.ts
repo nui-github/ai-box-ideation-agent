@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { firstValueFrom } from 'rxjs';
+import mermaid from 'mermaid';
 
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
@@ -29,7 +30,7 @@ interface FlowSection {
   icon: string;
   cls: string;
   body?: SafeHtml;
-  diagramSteps?: string[];
+  mermaidCode?: string;
 }
 
 interface Message {
@@ -70,6 +71,8 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   private msg = inject(NzMessageService);
   private sanitizer = inject(DomSanitizer);
   private uxFlowService = inject(UxFlowService);
+  private mermaidCache = new Map<string, SafeHtml>();
+  private mermaidIdCounter = 0;
 
   isSettingsVisible = signal(false);
   isAnalyzing = signal(false);
@@ -116,9 +119,11 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
       document.body.classList.remove('dark-theme');
       root.classList.remove('dark-theme');
     }
+
+    mermaid.initialize({ startOnLoad: false, theme: this.isDarkMode() ? 'dark' : 'default', securityLevel: 'strict' });
   }
 
-  toggleTheme() {
+  async toggleTheme() {
     const nextMode = !this.isDarkMode();
     this.isDarkMode.set(nextMode);
     const root = document.documentElement;
@@ -131,6 +136,16 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
       root.classList.remove('dark-theme');
       localStorage.setItem('theme', 'light');
     }
+
+    // Re-render any diagrams already on screen so they pick up the new mermaid theme
+    mermaid.initialize({ startOnLoad: false, theme: nextMode ? 'dark' : 'default', securityLevel: 'strict' });
+    this.mermaidCache.clear();
+    for (const message of this.messages()) {
+      if (message.sections?.some(s => s.mermaidCode)) {
+        await this.hydrateMermaidSections(message.sections);
+      }
+    }
+    this.messages.update(msgs => [...msgs]);
   }
 
   ngOnDestroy() {
@@ -298,6 +313,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
                if (parsed.chunk) {
                  fullText += parsed.chunk;
                  const sections = this.parseSections(fullText);
+                 await this.hydrateMermaidSections(sections);
                  // Update the last message
                  this.messages.update(msgs => {
                    const newMsgs = [...msgs];
@@ -325,6 +341,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
              if (parsed.chunk) {
                 fullText += parsed.chunk;
                 const sections = this.parseSections(fullText);
+                await this.hydrateMermaidSections(sections);
                 this.messages.update(msgs => {
                    const newMsgs = [...msgs];
                    newMsgs[newMsgs.length - 1] = { role: 'assistant', rawContent: fullText, sections };
@@ -420,12 +437,15 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
           : { cls: "section-default", numCls: "step-num-default", dotCls: "bullet-dot-default", icon: "file", label: s.title || "" };
 
         if (s.title === "🗺️ Flow Diagram") {
-          const diagramSteps = content
-            .split("\n")
-            .map(line => line.match(/^(\d+)\.\s+(.+)$/))
-            .filter((m): m is RegExpMatchArray => !!m)
-            .map(m => m[2].trim());
-          return { title: s.title, label: meta.label, icon: meta.icon, cls: meta.cls, diagramSteps };
+          const match = content.match(/```mermaid\n([\s\S]*?)```/);
+          if (match) {
+            return { title: s.title, label: meta.label, icon: meta.icon, cls: meta.cls, mermaidCode: match[1].trim() };
+          }
+          // Still streaming — fence not closed yet
+          return {
+            title: s.title, label: meta.label, icon: meta.icon, cls: meta.cls,
+            body: this.sanitizer.bypassSecurityTrustHtml(`<p style="margin:0;color:var(--gray-6)">กำลังสร้างแผนภาพ...</p>`)
+          };
         }
 
         return {
@@ -437,6 +457,25 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
         };
       })
       .filter((s): s is FlowSection => s !== null);
+  }
+
+  /** Renders any completed mermaid diagram sections to SVG in-place, caching by source so re-streamed/unchanged code is a no-op. */
+  async hydrateMermaidSections(sections: FlowSection[]): Promise<void> {
+    for (const section of sections) {
+      if (!section.mermaidCode) continue;
+
+      let svgHtml = this.mermaidCache.get(section.mermaidCode);
+      if (!svgHtml) {
+        try {
+          const { svg } = await mermaid.render(`mermaid-${this.mermaidIdCounter++}`, section.mermaidCode);
+          svgHtml = this.sanitizer.bypassSecurityTrustHtml(svg);
+        } catch (e) {
+          svgHtml = this.sanitizer.bypassSecurityTrustHtml(`<p style="margin:0;color:var(--gray-6)">ไม่สามารถแสดงแผนภาพได้ (รูปแบบไม่ถูกต้อง)</p>`);
+        }
+        this.mermaidCache.set(section.mermaidCode, svgHtml);
+      }
+      section.body = svgHtml;
+    }
   }
 
   renderBody(content: string, meta: any): string {

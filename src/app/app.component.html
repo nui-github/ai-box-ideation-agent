@@ -97,24 +97,8 @@
                               <lucide-icon [name]="section.icon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
                               <span>{{ section.label }}</span>
                             </div>
-                            <div class="section-card-body">
-                              @if (section.diagramSteps) {
-                                <div class="flow-diagram">
-                                  @for (step of section.diagramSteps; track $index; let isLast = $last) {
-                                    <div class="flow-diagram-node">
-                                      <div class="flow-diagram-box">
-                                        <span class="flow-diagram-num">{{ $index + 1 }}</span>
-                                        <span class="flow-diagram-label">{{ step }}</span>
-                                      </div>
-                                      @if (!isLast) {
-                                        <div class="flow-diagram-arrow"><lucide-icon name="arrow-right" [size]="16" [strokeWidth]="2.5"></lucide-icon></div>
-                                      }
-                                    </div>
-                                  }
-                                </div>
-                              } @else {
-                                <div [innerHTML]="section.body"></div>
-                              }
+                            <div class="section-card-body" [class.mermaid-diagram-wrap]="!!section.mermaidCode">
+                              <div [innerHTML]="section.body"></div>
                             </div>
                           </div>
                         } @else {
