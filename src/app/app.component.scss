@@ -327,7 +327,7 @@
 .qtag:hover { background: var(--hover-bg); border-color: var(--primary-color); color: var(--primary-color); }
 
 .input-box {
-  display: flex; gap: 10px; align-items: flex-end; background: var(--gray-1);
+  display: flex; gap: 10px; align-items: center; background: var(--gray-1);
   border: 1px solid var(--gray-5); border-radius: 8px; padding: 10px 12px 10px 16px;
   transition: border 0.15s ease, box-shadow 0.15s ease;
   
