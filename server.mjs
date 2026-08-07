@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import { handleDesignRequest, getModelUsage, MODEL_IDS } from './api/_lib/gemini-design.mjs';
-import { getEntries, addEntry, deleteEntry } from './api/_lib/business-logic-store.mjs';
+import { getEntries, addEntry, deleteEntry, updateEntry } from './api/_lib/business-logic-store.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,6 +32,18 @@ app.post('/api/business-logic', (req, res) => {
     return res.status(400).json({ error: 'Missing title or content' });
   }
   res.json(addEntry({ title, content }));
+});
+
+app.put('/api/business-logic/:id', (req, res) => {
+  const { title, content } = req.body;
+  if (!title || !content) {
+    return res.status(400).json({ error: 'Missing title or content' });
+  }
+  const entry = updateEntry(req.params.id, { title, content });
+  if (!entry) {
+    return res.status(404).json({ error: 'Entry not found' });
+  }
+  res.json(entry);
 });
 
 app.delete('/api/business-logic/:id', (req, res) => {

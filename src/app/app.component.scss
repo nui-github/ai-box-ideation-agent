@@ -410,7 +410,9 @@
   white-space: pre-wrap; word-break: break-word;
 }
 
-.logic-item-delete {
+.logic-item-actions { display: flex; gap: 2px; flex-shrink: 0; }
+
+.logic-item-delete, .logic-item-reupload {
   width: 26px; height: 26px; border-radius: 4px; background: none; border: none;
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
   color: var(--gray-6); cursor: pointer; transition: all 0.15s ease;
@@ -418,9 +420,10 @@
   lucide-icon, ::ng-deep lucide-icon {
     display: inline-flex; align-items: center; justify-content: center;
   }
-
-  &:hover { color: #ff4d4f; background: var(--hover-bg); }
 }
+
+.logic-item-delete:hover { color: #ff4d4f; background: var(--hover-bg); }
+.logic-item-reupload:hover { color: var(--primary-color); background: var(--hover-bg); }
 
 .logic-empty {
   font-size: 13px; color: var(--gray-6); padding: 12px; text-align: center;

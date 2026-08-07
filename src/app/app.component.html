@@ -229,7 +229,7 @@
             <label class="form-label" style="display:block;margin-bottom:8px;font-weight:500;">อัปโหลดไฟล์ Logic ของระบบ AI Box</label>
             <p style="font-size:12.5px;color:var(--gray-6);margin-bottom:12px;">อัปโหลดไฟล์ .txt หรือ .md ที่อธิบาย Business Logic ของ Platform เพื่อให้ AI นำไปอ้างอิงตอนออกแบบ Flow</p>
 
-            <input #logicFileInput type="file" accept=".txt,.md" multiple hidden (change)="onLogicFilesSelected($event)" />
+            <input #logicFileInput type="file" accept=".txt,.md" [attr.multiple]="reuploadTargetId() ? null : true" hidden (change)="onLogicFilesSelected($event)" />
             <button nz-button nzType="dashed" style="width:100%;" [disabled]="isAddingLogic()" (click)="triggerLogicFileUpload()">
               <lucide-icon name="upload" [size]="14" style="margin-right:6px;"></lucide-icon>
               {{ isAddingLogic() ? 'กำลังอัปโหลด...' : 'เลือกไฟล์ .txt / .md' }}
@@ -245,9 +245,14 @@
                     <div class="logic-item-title">{{ item.title }}</div>
                     <div class="logic-item-content">{{ item.content }}</div>
                   </div>
-                  <button class="logic-item-delete" nz-tooltip nzTooltipTitle="ลบ" (click)="removeBusinessLogic(item.id)">
-                    <lucide-icon name="trash-2" [size]="14"></lucide-icon>
-                  </button>
+                  <div class="logic-item-actions">
+                    <button class="logic-item-reupload" nz-tooltip nzTooltipTitle="อัปโหลดไฟล์ใหม่แทนที่" (click)="triggerLogicReupload(item.id)">
+                      <lucide-icon name="upload" [size]="14"></lucide-icon>
+                    </button>
+                    <button class="logic-item-delete" nz-tooltip nzTooltipTitle="ลบ" (click)="removeBusinessLogic(item.id)">
+                      <lucide-icon name="trash-2" [size]="14"></lucide-icon>
+                    </button>
+                  </div>
                 </div>
               } @empty {
                 <div class="logic-empty">ยังไม่มีข้อมูล Business Logic ที่เพิ่มเอง</div>

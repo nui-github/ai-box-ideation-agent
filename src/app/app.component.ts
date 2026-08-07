@@ -107,6 +107,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
 
   businessLogicEntries = signal<{ id: string, title: string, content: string }[]>([]);
   isAddingLogic = signal(false);
+  reuploadTargetId = signal<string | null>(null);
 
   isDiagramModalVisible = signal(false);
   diagramModalSvg = signal<SafeHtml | null>(null);
@@ -277,6 +278,12 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   }
 
   triggerLogicFileUpload() {
+    this.reuploadTargetId.set(null);
+    this.logicFileInput?.nativeElement.click();
+  }
+
+  triggerLogicReupload(id: string) {
+    this.reuploadTargetId.set(id);
     this.logicFileInput?.nativeElement.click();
   }
 
@@ -285,18 +292,35 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     const files = Array.from(input.files || []);
     if (!files.length) return;
 
+    const targetId = this.reuploadTargetId();
     this.isAddingLogic.set(true);
-    for (const file of files) {
+
+    if (targetId) {
+      const file = files[0];
       try {
         const content = await file.text();
         const entry = await firstValueFrom(
-          this.http.post<{ id: string, title: string, content: string }>('/api/business-logic', { title: file.name, content })
+          this.http.put<{ id: string, title: string, content: string }>(`/api/business-logic/${targetId}`, { title: file.name, content })
         );
-        this.businessLogicEntries.update(list => [...list, entry]);
+        this.businessLogicEntries.update(list => list.map(e => e.id === targetId ? entry : e));
       } catch {
         this.msg.error(`อัปโหลด ${file.name} ไม่สำเร็จ`);
       }
+      this.reuploadTargetId.set(null);
+    } else {
+      for (const file of files) {
+        try {
+          const content = await file.text();
+          const entry = await firstValueFrom(
+            this.http.post<{ id: string, title: string, content: string }>('/api/business-logic', { title: file.name, content })
+          );
+          this.businessLogicEntries.update(list => [...list, entry]);
+        } catch {
+          this.msg.error(`อัปโหลด ${file.name} ไม่สำเร็จ`);
+        }
+      }
     }
+
     this.isAddingLogic.set(false);
     input.value = '';
   }

@@ -8,24 +8,14 @@ const dataFile = path.join(__dirname, '..', '..', 'data', 'business-logic.json')
 
 const defaultEntries = [
   {
-    id: 'default-api',
-    title: 'API หลัก',
-    content: '/eSignature/save, /search, /getByTracking, /download, /void, /delete, /sharing/owner/esignature/get'
-  },
-  {
-    id: 'default-status',
-    title: 'สถานะเอกสาร (Status)',
-    content: 'ALL, DRAFT, INPROCESS, VOID, SUCCESS, REVISING, RETURNED, REJECTED'
-  },
-  {
-    id: 'default-status-recipient',
-    title: 'สถานะผู้รับ (StatusRecipient)',
-    content: 'PENDING, INPROCESS, COMPLETE, RETURNED, REJECTED, VOID'
-  },
-  {
-    id: 'default-roles',
-    title: 'สิทธิ์การใช้งาน (Roles)',
-    content: 'ESIG_CREATE, ESIG_VIEWER, ESIG_ACCESS, ADMIN'
+    id: 'default-system-knowledge',
+    title: 'ข้อมูลระบบเริ่มต้น (eSignature)',
+    content: [
+      'API หลัก: /eSignature/save, /search, /getByTracking, /download, /void, /delete, /sharing/owner/esignature/get',
+      'สถานะเอกสาร (Status): ALL, DRAFT, INPROCESS, VOID, SUCCESS, REVISING, RETURNED, REJECTED',
+      'สถานะผู้รับ (StatusRecipient): PENDING, INPROCESS, COMPLETE, RETURNED, REJECTED, VOID',
+      'สิทธิ์การใช้งาน (Roles): ESIG_CREATE, ESIG_VIEWER, ESIG_ACCESS, ADMIN'
+    ].join('\n')
   }
 ];
 
@@ -60,4 +50,14 @@ export function deleteEntry(id) {
   const next = entries.filter(e => e.id !== id);
   writeEntries(next);
   return next;
+}
+
+export function updateEntry(id, { title, content }) {
+  const entries = readEntries();
+  const entry = entries.find(e => e.id === id);
+  if (!entry) return null;
+  entry.title = String(title).trim();
+  entry.content = String(content).trim();
+  writeEntries(entries);
+  return entry;
 }
