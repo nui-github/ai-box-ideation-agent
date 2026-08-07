@@ -1,7 +1,7 @@
 <nz-layout class="app-layout">
   <nz-sider [nzWidth]="250" class="sidebar" [nzCollapsed]="isCollapsed()" [nzCollapsedWidth]="0" [nzTrigger]="null">
     <div class="sidebar-header">
-      <div class="logo-mark"><img src="assets/logo-ai-box.svg" alt="AI BOX" /></div>
+      <div class="logo-mark"><img [src]="isDarkMode() ? 'assets/logo-ai-box-white.svg' : 'assets/logo-ai-box.svg'" alt="AI BOX" /></div>
       <button class="btn-icon-small" nz-tooltip nzTooltipTitle="ปิด Panel" (click)="isCollapsed.set(true)">
         <lucide-icon name="chevron-left" [size]="14"></lucide-icon>
       </button>
@@ -43,7 +43,7 @@
             <lucide-icon name="menu" [size]="18"></lucide-icon>
           </button>
         }
-        <span class="header-title">UX Flow Designer</span>
+        <span class="header-title">Product Owner (PO) assistant agent</span>
       </div>
       <div class="header-actions">
         <button class="btn-icon" nz-tooltip [nzTooltipTitle]="isDarkMode() ? 'ใช้ธีมสว่าง' : 'ใช้ธีมมืด'" (click)="toggleTheme()">
