@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import { handleDesignRequest, getModelUsage, MODEL_IDS } from './api/_lib/gemini-design.mjs';
+import { getEntries, addEntry, deleteEntry } from './api/_lib/business-logic-store.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,6 +21,22 @@ app.get('/api/models/usage', (req, res) => {
 });
 
 app.post('/api/design', (req, res) => handleDesignRequest(req, res));
+
+app.get('/api/business-logic', (req, res) => {
+  res.json(getEntries());
+});
+
+app.post('/api/business-logic', (req, res) => {
+  const { title, content } = req.body;
+  if (!title || !content) {
+    return res.status(400).json({ error: 'Missing title or content' });
+  }
+  res.json(addEntry({ title, content }));
+});
+
+app.delete('/api/business-logic/:id', (req, res) => {
+  res.json(deleteEntry(req.params.id));
+});
 
 // Enforce JSON for unmatched API routes
 app.all('/api/*', (req, res) => {

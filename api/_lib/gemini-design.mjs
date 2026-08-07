@@ -1,4 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
+import { getEntries } from './business-logic-store.mjs';
 
 export const modelLimits = {
   'gemini-3.6-flash': 15,
@@ -30,13 +31,14 @@ export function getModelUsage(modelName) {
   return usageStats[modelName];
 }
 
-const systemInstruction = `คุณคือ Senior UX/UI Designer และ Product Owner ของระบบ eSignature หน้าที่ของคุณคือรับ Requirement ใหม่ และออกแบบ User Flow แบบเข้าใจง่าย
+function buildSystemInstruction() {
+  const entries = getEntries();
+  const knowledgeBlock = entries.map(e => `// ${e.title}: ${e.content}`).join('\n');
+
+  return `คุณคือ Senior UX/UI Designer และ Product Owner ของระบบ eSignature หน้าที่ของคุณคือรับ Requirement ใหม่ และออกแบบ User Flow แบบเข้าใจง่าย
 
 ข้อมูลระบบปัจจุบันที่มีอยู่ (ใช้เพื่ออ้างอิงและประเมินความเป็นไปได้ ไม่ต้องแสดงในผลลัพธ์โดยตรง):
-// API: /eSignature/save, /search, /getByTracking, /download, /void, /delete, /sharing/owner/esignature/get
-// Status: ALL, DRAFT, INPROCESS, VOID, SUCCESS, REVISING, RETURNED, REJECTED
-// StatusRecipient: PENDING, INPROCESS, COMPLETE, RETURNED, REJECTED, VOID
-// Roles: ESIG_CREATE, ESIG_VIEWER, ESIG_ACCESS, ADMIN
+${knowledgeBlock}
 
 กฎ:
 1. เขียนอธิบายด้วยภาษาที่เข้าใจง่าย (Non-tech friendly) ให้ทาง PO (Product Owner), BA (Business Analyst) และ Designer อ่านแล้วเห็นภาพ โดยลดการใช้ภาษา Technical / แงะ API / ชื่อ DTO ลงให้เหลือน้อยที่สุด
@@ -91,6 +93,7 @@ flowchart LR
 แนะนำส่วนประกอบหน้าจอตาม Ant Design (ng-zorro) แบบเข้าใจง่าย (เช่น Modal สำหรับยืนยัน, แจ้งเตือนแบบ Toast)
 
 ตอบภาษาไทยเป็นหลัก เขียนให้อ่านแล้วรู้สึกโปรเฟสชันนอล เป็นมิตรครับ`;
+}
 
 // Streams the Gemini response, writing SSE-style JSON lines via `res.write`.
 // Shared by the local Express server (server.mjs) and the Vercel serverless
@@ -154,7 +157,7 @@ export async function handleDesignRequest(req, res) {
               model: modelToTry,
               contents: geminiMessages,
               config: {
-                systemInstruction
+                systemInstruction: buildSystemInstruction()
               }
             });
 

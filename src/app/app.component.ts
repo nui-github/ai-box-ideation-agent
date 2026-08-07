@@ -102,6 +102,11 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   drawerTitle = signal('');
   drawerContent = signal<SafeHtml|null>(null);
 
+  businessLogicEntries = signal<{ id: string, title: string, content: string }[]>([]);
+  newLogicTitle = new FormControl('');
+  newLogicContent = new FormControl('');
+  isAddingLogic = signal(false);
+
   isDiagramModalVisible = signal(false);
   diagramModalSvg = signal<SafeHtml | null>(null);
   diagramZoom = signal(1);
@@ -250,6 +255,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
 
   openSettings() {
     this.loadUsage();
+    this.loadBusinessLogic();
     this.isSettingsVisible.set(true);
   }
 
@@ -260,6 +266,40 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   saveSettings() {
     this.closeSettings();
     this.msg.success('บันทึกการตั้งค่าเรียบร้อย');
+  }
+
+  loadBusinessLogic() {
+    this.http.get<{ id: string, title: string, content: string }[]>('/api/business-logic').subscribe({
+      next: (data) => this.businessLogicEntries.set(data),
+      error: () => this.msg.error('โหลดข้อมูล Business Logic ไม่สำเร็จ')
+    });
+  }
+
+  addBusinessLogic() {
+    const title = this.newLogicTitle.value?.trim();
+    const content = this.newLogicContent.value?.trim();
+    if (!title || !content) return;
+
+    this.isAddingLogic.set(true);
+    this.http.post<{ id: string, title: string, content: string }>('/api/business-logic', { title, content }).subscribe({
+      next: (entry) => {
+        this.businessLogicEntries.update(list => [...list, entry]);
+        this.newLogicTitle.setValue('');
+        this.newLogicContent.setValue('');
+        this.isAddingLogic.set(false);
+      },
+      error: () => {
+        this.msg.error('เพิ่ม Business Logic ไม่สำเร็จ');
+        this.isAddingLogic.set(false);
+      }
+    });
+  }
+
+  removeBusinessLogic(id: string) {
+    this.http.delete<{ id: string, title: string, content: string }[]>(`/api/business-logic/${id}`).subscribe({
+      next: (list) => this.businessLogicEntries.set(list),
+      error: () => this.msg.error('ลบ Business Logic ไม่สำเร็จ')
+    });
   }
 
   loadUsage() {
