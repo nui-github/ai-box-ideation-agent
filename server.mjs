@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
-import { handleDesignRequest, getModelUsage } from './api/_lib/gemini-design.mjs';
+import { handleDesignRequest, getModelUsage, MODEL_IDS } from './api/_lib/gemini-design.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,8 +15,7 @@ app.use(express.json());
 app.use(cors());
 
 app.get('/api/models/usage', (req, res) => {
-  const models = ['gemini-3.5-flash', 'gemini-2.5-flash', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
-  const stats = models.map(m => ({ model: m, ...getModelUsage(m) }));
+  const stats = MODEL_IDS.map(m => ({ model: m, ...getModelUsage(m) }));
   res.json(stats);
 });
 

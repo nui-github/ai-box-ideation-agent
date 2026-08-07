@@ -1,11 +1,14 @@
 import { GoogleGenAI } from '@google/genai';
 
 export const modelLimits = {
+  'gemini-3.6-flash': 15,
   'gemini-3.5-flash': 15,
   'gemini-2.5-flash': 15,
   'gemini-3.1-flash-lite': 15,
   'gemini-flash-latest': 15
 };
+
+export const MODEL_IDS = Object.keys(modelLimits);
 
 const usageStats = {};
 
@@ -73,7 +76,7 @@ export async function handleDesignRequest(req, res) {
   let usedModel;
   try {
     const { messages, model } = req.body;
-    const selectedModel = model || 'gemini-3.5-flash';
+    const selectedModel = model || 'gemini-3.6-flash';
     usedModel = selectedModel;
 
     if (!messages || !Array.isArray(messages)) {
@@ -105,6 +108,7 @@ export async function handleDesignRequest(req, res) {
       let response;
 
       let fallbackModels = [
+        'gemini-3.6-flash',
         'gemini-3.5-flash',
         'gemini-3.1-flash-lite',
         'gemini-flash-latest',
