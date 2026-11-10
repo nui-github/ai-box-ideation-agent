@@ -337,6 +337,9 @@
     background-image: radial-gradient(var(--diagram-dot-color) 1px, transparent 1px);
     background-size: 20px 20px;
     border-radius: 8px;
+    cursor: grab;
+    user-select: none;
+    &.panning { cursor: grabbing; }
   }
   .diagram-modal-stage { display: inline-block; transform-origin: 0 0; transition: transform 0.15s ease-out; }
 

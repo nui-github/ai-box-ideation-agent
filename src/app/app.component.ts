@@ -114,6 +114,8 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   reuploadTargetId = signal<string | null>(null);
 
   isDiagramModalVisible = signal(false);
+  isPanning = signal(false);
+  private pan: { x: number; y: number; left: number; top: number; id: number } | null = null;
   diagramModalSvg = signal<SafeHtml | null>(null);
   diagramModalTitle = signal('Flow Diagram');
   diagramZoom = signal(1);
@@ -234,6 +236,32 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
 
   closeDiagramModal() {
     this.isDiagramModalVisible.set(false);
+  }
+
+  /** Click-and-drag on the diagram canvas pans it (mouse/pen; touch keeps native scrolling). */
+  onPanStart(e: PointerEvent) {
+    const canvas = this.diagramCanvas?.nativeElement;
+    if (!canvas || e.button !== 0 || e.pointerType === 'touch') return;
+    // Ignore presses on the scrollbars so they keep working normally.
+    const rect = canvas.getBoundingClientRect();
+    if (e.clientX - rect.left > canvas.clientWidth || e.clientY - rect.top > canvas.clientHeight) return;
+    this.pan = { x: e.clientX, y: e.clientY, left: canvas.scrollLeft, top: canvas.scrollTop, id: e.pointerId };
+    canvas.setPointerCapture(e.pointerId);
+    this.isPanning.set(true);
+  }
+
+  onPanMove(e: PointerEvent) {
+    const canvas = this.diagramCanvas?.nativeElement;
+    if (!canvas || !this.pan || e.pointerId !== this.pan.id) return;
+    canvas.scrollLeft = this.pan.left - (e.clientX - this.pan.x);
+    canvas.scrollTop = this.pan.top - (e.clientY - this.pan.y);
+  }
+
+  onPanEnd(e: PointerEvent) {
+    if (!this.pan || e.pointerId !== this.pan.id) return;
+    this.diagramCanvas?.nativeElement.releasePointerCapture?.(e.pointerId);
+    this.pan = null;
+    this.isPanning.set(false);
   }
 
   zoomIn() {

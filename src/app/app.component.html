@@ -329,7 +329,9 @@
         <lucide-icon name="rotate-ccw" [size]="14"></lucide-icon>
       </button>
     </div>
-    <div class="diagram-modal-canvas" #diagramCanvas>
+    <div class="diagram-modal-canvas" #diagramCanvas [class.panning]="isPanning()"
+         (pointerdown)="onPanStart($event)" (pointermove)="onPanMove($event)" (pointerup)="onPanEnd($event)" (pointercancel)="onPanEnd($event)"
+         (dragstart)="$event.preventDefault()">
       <div class="diagram-modal-stage" #diagramStage [style.transform]="'scale(' + diagramZoom() + ')'" [innerHTML]="diagramModalSvg()"></div>
     </div>
   </ng-container>
