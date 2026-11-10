@@ -1,0 +1,91 @@
+<svg viewBox="0 0 1280 624" width="1280" height="624" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ref-dto-title ref-dto-desc">
+  <title id="ref-dto-title">Data Models overview</title>
+  <desc id="ref-dto-desc">Conceptual data model: an envelope has recipients and share settings, and uses status enums for the overall document and for each recipient. Not the physical database schema.</desc>
+  <defs>
+    <marker id="ref-dto-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+    <marker id="ref-dto-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0463EF"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#f5f5f5"/>
+  <line x1="380" y1="120" x2="300" y2="120" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#ref-dto-arrow)"/>
+  <line x1="700" y1="120" x2="820" y2="120" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#ref-dto-arrow)"/>
+  <path d="M 540,280 V 414 Q 540,422 548,422 H 820" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#ref-dto-arrow)"/>
+  <line x1="1000" y1="172" x2="1000" y2="212" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#ref-dto-arrow)"/>
+  <rect x="318" y="98" width="44" height="16" rx="2" fill="#f5f5f5"/>
+  <text x="340" y="110" fill="#5a6580" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" font-weight="500" text-anchor="middle">สถานะ</text>
+  <rect x="738" y="98" width="44" height="16" rx="2" fill="#f5f5f5"/>
+  <text x="760" y="110" fill="#5a6580" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" font-weight="500" text-anchor="middle">มีผู้เซ็น</text>
+  <text x="708" y="114" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace">1</text>
+  <text x="812" y="114" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="end">N</text>
+  <rect x="662" y="396" width="44" height="16" rx="2" fill="#f5f5f5"/>
+  <text x="684" y="408" fill="#5a6580" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" font-weight="500" text-anchor="middle">ถูกแชร์</text>
+  <text x="548" y="296" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace">1</text>
+  <text x="812" y="416" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="end">N</text>
+  <rect x="1014" y="184" width="44" height="16" rx="2" fill="#f5f5f5"/>
+  <text x="1036" y="196" fill="#5a6580" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" font-weight="500" text-anchor="middle">สถานะ</text>
+  <rect x="40" y="72" width="260" height="80" rx="6" fill="#f5f5f5"/>
+  <rect x="40" y="72" width="260" height="80" rx="6" fill="rgba(1,1,54,0.03)" stroke="rgba(1,1,54,0.30)" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="56" y="92" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">ENUM</text>
+  <text x="56" y="108" fill="#010136" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" font-weight="600">Status</text>
+  <text x="56" y="132" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace">DRAFT · INPROCESS · VOID · SUCCESS</text>
+  <text x="56" y="152" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace">REVISING · RETURNED · REJECTED</text>
+  <rect x="380" y="72" width="320" height="196" rx="6" fill="#f5f5f5"/>
+  <rect x="380" y="72" width="320" height="196" rx="6" fill="rgba(4,99,239,0.08)" stroke="#0463EF" stroke-width="1"/>
+  <rect x="381" y="73" width="318" height="40" rx="6" fill="rgba(4,99,239,0.08)"/>
+  <rect x="381" y="105" width="318" height="8" fill="rgba(4,99,239,0.08)"/>
+  <line x1="380" y1="112" x2="700" y2="112" stroke="#0463EF" stroke-width="1"/>
+  <text x="396" y="88" fill="#0463EF" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">ENTITY · AGGREGATE ROOT</text>
+  <text x="396" y="104" fill="#010136" font-size="14" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" font-weight="600">Envelope (Tracking)</text>
+  <text x="396" y="136" fill="#010136" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">เลขที่อ้างอิง</text>
+  <text x="684" y="136" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">id</text>
+  <text x="396" y="160" fill="#010136" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">หัวข้อเอกสาร</text>
+  <text x="684" y="160" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">text</text>
+  <text x="396" y="184" fill="#010136" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ไฟล์ที่เกี่ยวข้อง</text>
+  <text x="684" y="184" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">file[]</text>
+  <text x="396" y="208" fill="#010136" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">วิธียืนยันตัวตน</text>
+  <text x="684" y="208" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">authen · eKYC</text>
+  <text x="396" y="232" fill="#010136" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">รูปแบบการอนุมัติ</text>
+  <text x="684" y="232" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">SEQUENTIAL | PARALLEL</text>
+  <text x="396" y="256" fill="#010136" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">สถานะภาพรวม</text>
+  <text x="684" y="256" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">Status</text>
+  <rect x="820" y="72" width="360" height="100" rx="6" fill="#f5f5f5"/>
+  <rect x="820" y="72" width="360" height="100" rx="6" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+  <rect x="821" y="73" width="358" height="40" rx="6" fill="rgba(1,1,54,0.03)"/>
+  <rect x="821" y="105" width="358" height="8" fill="rgba(1,1,54,0.03)"/>
+  <line x1="820" y1="112" x2="1180" y2="112" stroke="rgba(1,1,54,0.22)" stroke-width="1"/>
+  <text x="836" y="88" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">ENTITY</text>
+  <text x="836" y="104" fill="#010136" font-size="14" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" font-weight="600">Recipient (ผู้เซ็น)</text>
+  <text x="836" y="136" fill="#010136" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">รายชื่อ / กลุ่มผู้อนุมัติ</text>
+  <text x="1164" y="136" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">person | group</text>
+  <text x="836" y="160" fill="#010136" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">สถานะรายบุคคล</text>
+  <text x="1164" y="160" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">StatusRecipient</text>
+  <rect x="820" y="212" width="360" height="80" rx="6" fill="#f5f5f5"/>
+  <rect x="820" y="212" width="360" height="80" rx="6" fill="rgba(1,1,54,0.03)" stroke="rgba(1,1,54,0.30)" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="836" y="232" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">ENUM</text>
+  <text x="836" y="248" fill="#010136" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" font-weight="600">StatusRecipient</text>
+  <text x="836" y="272" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace">PENDING · INPROCESS · COMPLETE</text>
+  <text x="836" y="292" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace">RETURNED · REJECTED · VOID</text>
+  <rect x="820" y="372" width="360" height="100" rx="6" fill="#f5f5f5"/>
+  <rect x="820" y="372" width="360" height="100" rx="6" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+  <rect x="821" y="373" width="358" height="40" rx="6" fill="rgba(1,1,54,0.03)"/>
+  <rect x="821" y="405" width="358" height="8" fill="rgba(1,1,54,0.03)"/>
+  <line x1="820" y1="412" x2="1180" y2="412" stroke="rgba(1,1,54,0.22)" stroke-width="1"/>
+  <text x="836" y="388" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">ENTITY</text>
+  <text x="836" y="404" fill="#010136" font-size="14" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" font-weight="600">Share (การแชร์)</text>
+  <text x="836" y="436" fill="#010136" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ระดับการแชร์</text>
+  <text x="1164" y="436" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">VIEW | EDIT</text>
+  <text x="836" y="460" fill="#010136" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">เงื่อนไขการเข้าถึง</text>
+  <text x="1164" y="460" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">link | org | person</text>
+  <line x1="40" y1="504" x2="1240" y2="504" stroke="rgba(1,1,54,0.10)" stroke-width="0.8"/>
+  <text x="40" y="528" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+  <rect x="40" y="548" width="14" height="10" rx="2" fill="rgba(4,99,239,0.08)" stroke="#0463EF" stroke-width="1"/>
+  <text x="60" y="557" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ข้อมูลหลักที่เป็นศูนย์กลาง</text>
+  <rect x="220" y="548" width="14" height="10" rx="2" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+  <text x="240" y="557" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ข้อมูลที่เกี่ยวข้อง</text>
+  <rect x="356" y="548" width="14" height="10" rx="2" fill="rgba(1,1,54,0.03)" stroke="rgba(1,1,54,0.30)" stroke-width="1"/>
+  <text x="376" y="557" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ค่าที่กำหนดไว้ (Enum)</text>
+  <line x1="528" y1="553" x2="556" y2="553" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#ref-dto-arrow)"/>
+  <text x="564" y="557" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">เกี่ยวข้องกัน</text>
+  <line x1="660" y1="553" x2="688" y2="553" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#ref-dto-arrow)"/>
+  <text x="696" y="557" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ใช้ค่าสถานะ</text>
+  <text x="1240" y="557" fill="#5a6580" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="end">โครงสร้างเชิงแนวคิด ไม่ใช่ schema ฐานข้อมูลจริง</text>
+</svg>

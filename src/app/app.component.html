@@ -29,9 +29,24 @@
 
       <div class="sidebar-section">
         <div class="sidebar-section-label">System Reference</div>
-        <button class="nav-item" (click)="showInfo('api')"><lucide-icon name="network" [size]="18"></lucide-icon><span class="label">API Endpoints</span></button>
-        <button class="nav-item" (click)="showInfo('dto')"><lucide-icon name="database" [size]="18"></lucide-icon><span class="label">DTO / Data Models</span></button>
-        <button class="nav-item" (click)="showInfo('roles')"><lucide-icon name="shield" [size]="18"></lucide-icon><span class="label">Roles & Permissions</span></button>
+        <div class="nav-row">
+          <button class="nav-item" (click)="showInfo('api')"><lucide-icon name="network" [size]="18"></lucide-icon><span class="label">API Endpoints</span></button>
+          <button class="nav-flow-btn" nz-tooltip nzTooltipTitle="ดูแผนภาพ" nzTooltipPlacement="right" (click)="openReferenceDiagram('api')">
+            <lucide-icon name="workflow" [size]="14"></lucide-icon>
+          </button>
+        </div>
+        <div class="nav-row">
+          <button class="nav-item" (click)="showInfo('dto')"><lucide-icon name="database" [size]="18"></lucide-icon><span class="label">DTO / Data Models</span></button>
+          <button class="nav-flow-btn" nz-tooltip nzTooltipTitle="ดูแผนภาพ" nzTooltipPlacement="right" (click)="openReferenceDiagram('dto')">
+            <lucide-icon name="workflow" [size]="14"></lucide-icon>
+          </button>
+        </div>
+        <div class="nav-row">
+          <button class="nav-item" (click)="showInfo('roles')"><lucide-icon name="shield" [size]="18"></lucide-icon><span class="label">Roles & Permissions</span></button>
+          <button class="nav-flow-btn" nz-tooltip nzTooltipTitle="ดูแผนภาพ" nzTooltipPlacement="right" (click)="openReferenceDiagram('roles')">
+            <lucide-icon name="workflow" [size]="14"></lucide-icon>
+          </button>
+        </div>
       </div>
     </div>
 

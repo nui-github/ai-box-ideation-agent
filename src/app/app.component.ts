@@ -200,14 +200,24 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   }
 
   /** Opens a curated example flow (src/assets/flows/<slug>[-dark].svg) in the zoomable diagram viewer. */
-  async openFlowExample(prompt: UxFlowPrompt) {
+  openFlowExample(prompt: UxFlowPrompt) {
     if (!prompt.flow) return;
-    const file = `assets/flows/${prompt.flow}${this.isDarkMode() ? '-dark' : ''}.svg`;
+    return this.openCuratedDiagram(prompt.flow, `${prompt.text} · Flow ตัวอย่าง`);
+  }
+
+  /** System Reference topics (api | dto | roles) each have a curated overview diagram (ref-<key>.svg). */
+  openReferenceDiagram(key: string) {
+    const title = this.infoTexts()[key]?.title ?? 'System Reference';
+    return this.openCuratedDiagram(`ref-${key}`, `${title} · แผนภาพ`);
+  }
+
+  private async openCuratedDiagram(slug: string, title: string) {
+    const file = `assets/flows/${slug}${this.isDarkMode() ? '-dark' : ''}.svg`;
     try {
       const svg = await firstValueFrom(this.http.get(file, { responseType: 'text' }));
-      this.openDiagramModal(this.sanitizer.bypassSecurityTrustHtml(this.sizeSvgFromViewBox(svg)), `${prompt.text} · Flow ตัวอย่าง`);
+      this.openDiagramModal(this.sanitizer.bypassSecurityTrustHtml(this.sizeSvgFromViewBox(svg)), title);
     } catch {
-      this.msg.error('โหลด Flow ตัวอย่างไม่สำเร็จ');
+      this.msg.error('โหลดแผนภาพไม่สำเร็จ');
     }
   }
 

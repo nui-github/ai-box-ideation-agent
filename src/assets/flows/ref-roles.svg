@@ -1,0 +1,51 @@
+<svg viewBox="0 0 1280 480" width="1280" height="480" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ref-roles-title ref-roles-desc">
+  <title id="ref-roles-title">Roles and permissions overview</title>
+  <desc id="ref-roles-desc">Role groups: content creators (document and form creators), access roles (recipient and viewer), and administration (admin with full management access).</desc>
+  <defs>
+    <marker id="ref-roles-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+    <marker id="ref-roles-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0463EF"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#f5f5f5"/>
+  <rect x="40" y="48" width="368" height="284" rx="8" fill="none" stroke="rgba(1,1,54,0.22)" stroke-width="1" stroke-dasharray="4,4"/>
+  <text x="60" y="76" fill="#010136" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" font-weight="600">สร้างและจัดการเนื้อหา</text>
+  <text x="60" y="92" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">CONTENT</text>
+  <rect x="56" y="108" width="336" height="100" rx="6" fill="#f5f5f5"/>
+  <rect x="56" y="108" width="336" height="100" rx="6" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+  <text x="72" y="132" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.12em">ESIG_CREATE</text>
+  <text x="72" y="156" fill="#010136" font-size="14" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" font-weight="600">ผู้สร้างเอกสาร</text>
+  <text x="72" y="182" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">อัปโหลด ตั้งค่า และส่งเอกสารให้ผู้อื่น</text>
+  <rect x="56" y="224" width="336" height="100" rx="6" fill="#f5f5f5"/>
+  <rect x="56" y="224" width="336" height="100" rx="6" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+  <text x="72" y="248" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.12em">EFORM_CREATE</text>
+  <text x="72" y="272" fill="#010136" font-size="14" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" font-weight="600">ผู้สร้างแบบฟอร์ม</text>
+  <text x="72" y="298" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">สร้าง E-Form ให้คนทั่วไปกรอกผ่านลิงก์</text>
+  <rect x="440" y="48" width="368" height="284" rx="8" fill="none" stroke="rgba(1,1,54,0.22)" stroke-width="1" stroke-dasharray="4,4"/>
+  <text x="460" y="76" fill="#010136" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" font-weight="600">ดูข้อมูลและทำงานเบื้องหลัง</text>
+  <text x="460" y="92" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">ACCESS</text>
+  <rect x="456" y="108" width="336" height="100" rx="6" fill="#f5f5f5"/>
+  <rect x="456" y="108" width="336" height="100" rx="6" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+  <text x="472" y="132" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.12em">RECIPIENT</text>
+  <text x="472" y="156" fill="#010136" font-size="14" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" font-weight="600">ผู้รับสิทธิ์เข้าถึง (Recipient)</text>
+  <text x="472" y="182" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">เปิดดูเฉพาะเอกสารที่ถูกส่งให้ตนเอง</text>
+  <rect x="456" y="224" width="336" height="100" rx="6" fill="#f5f5f5"/>
+  <rect x="456" y="224" width="336" height="100" rx="6" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+  <text x="472" y="248" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.12em">VIEWER</text>
+  <text x="472" y="272" fill="#010136" font-size="14" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" font-weight="600">ผู้เยี่ยมชม (Viewer)</text>
+  <text x="472" y="298" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ดูได้ แต่เปลี่ยนแปลงข้อมูลไม่ได้</text>
+  <rect x="840" y="48" width="368" height="284" rx="8" fill="none" stroke="rgba(1,1,54,0.22)" stroke-width="1" stroke-dasharray="4,4"/>
+  <text x="860" y="76" fill="#010136" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" font-weight="600">ฝ่ายเทคนิคและบริหารระบบ</text>
+  <text x="860" y="92" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">ADMINISTRATION</text>
+  <rect x="856" y="108" width="336" height="100" rx="6" fill="#f5f5f5"/>
+  <rect x="856" y="108" width="336" height="100" rx="6" fill="rgba(4,99,239,0.08)" stroke="#0463EF" stroke-width="1"/>
+  <text x="872" y="132" fill="#0463EF" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.12em">ADMIN</text>
+  <text x="872" y="156" fill="#010136" font-size="14" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" font-weight="600">ผู้ดูแลระบบ (Admin)</text>
+  <text x="872" y="182" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">จัดการสิทธิ์ เข้าถึงข้อมูลทั้งหมดได้ครอบคลุม</text>
+  <line x1="40" y1="360" x2="1240" y2="360" stroke="rgba(1,1,54,0.10)" stroke-width="0.8"/>
+  <text x="40" y="384" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+  <rect x="40" y="404" width="14" height="10" rx="2" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+  <text x="60" y="413" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">บทบาท</text>
+  <rect x="124" y="404" width="14" height="10" rx="2" fill="rgba(4,99,239,0.08)" stroke="#0463EF" stroke-width="1"/>
+  <text x="144" y="413" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">สิทธิ์สูงสุด</text>
+  <rect x="224" y="404" width="14" height="10" rx="2" fill="none" stroke="rgba(1,1,54,0.22)" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="244" y="413" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">กลุ่มสิทธิ์</text>
+</svg>
