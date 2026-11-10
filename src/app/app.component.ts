@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { firstValueFrom } from 'rxjs';
 import mermaid from 'mermaid';
+import { mermaidConfig, applyFlowTheme } from './mermaid-theme';
 
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
@@ -111,6 +112,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
 
   isDiagramModalVisible = signal(false);
   diagramModalSvg = signal<SafeHtml | null>(null);
+  diagramModalTitle = signal('Flow Diagram');
   diagramZoom = signal(1);
 
   ngOnInit() {
@@ -133,7 +135,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
       root.classList.remove('dark-theme');
     }
 
-    mermaid.initialize({ startOnLoad: false, theme: this.isDarkMode() ? 'dark' : 'default', securityLevel: 'strict' });
+    mermaid.initialize(mermaidConfig(this.isDarkMode()));
   }
 
   async toggleTheme() {
@@ -151,7 +153,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     }
 
     // Re-render any diagrams already on screen so they pick up the new mermaid theme
-    mermaid.initialize({ startOnLoad: false, theme: nextMode ? 'dark' : 'default', securityLevel: 'strict' });
+    mermaid.initialize(mermaidConfig(nextMode));
     this.mermaidCache.clear();
     for (const message of this.messages()) {
       if (message.sections?.some(s => s.mermaidCode)) {
@@ -197,8 +199,21 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     this.isDrawerVisible.set(false);
   }
 
-  openDiagramModal(svg: SafeHtml | undefined) {
+  /** Opens a curated example flow (src/assets/flows/<slug>[-dark].svg) in the zoomable diagram viewer. */
+  async openFlowExample(prompt: UxFlowPrompt) {
+    if (!prompt.flow) return;
+    const file = `assets/flows/${prompt.flow}${this.isDarkMode() ? '-dark' : ''}.svg`;
+    try {
+      const svg = await firstValueFrom(this.http.get(file, { responseType: 'text' }));
+      this.openDiagramModal(this.sanitizer.bypassSecurityTrustHtml(this.sizeSvgFromViewBox(svg)), `${prompt.text} · Flow ตัวอย่าง`);
+    } catch {
+      this.msg.error('โหลด Flow ตัวอย่างไม่สำเร็จ');
+    }
+  }
+
+  openDiagramModal(svg: SafeHtml | undefined, title = 'Flow Diagram') {
     if (!svg) return;
+    this.diagramModalTitle.set(title);
     this.diagramModalSvg.set(svg);
     this.diagramZoom.set(1);
     this.isDiagramModalVisible.set(true);
@@ -585,7 +600,10 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
       let svgHtml = this.mermaidCache.get(section.mermaidCode);
       if (!svgHtml) {
         try {
-          const { svg } = await mermaid.render(`mermaid-${this.mermaidIdCounter++}`, section.mermaidCode);
+          // Mermaid measures text at render time; wait for the web fonts or labels get clipped.
+          await document.fonts?.ready;
+          const themedCode = applyFlowTheme(section.mermaidCode, this.isDarkMode());
+          const { svg } = await mermaid.render(`mermaid-${this.mermaidIdCounter++}`, themedCode);
           svgHtml = this.sanitizer.bypassSecurityTrustHtml(this.sizeSvgFromViewBox(svg));
         } catch (e) {
           svgHtml = this.sanitizer.bypassSecurityTrustHtml(`<p style="margin:0;color:var(--gray-6)">ไม่สามารถแสดงแผนภาพได้ (รูปแบบไม่ถูกต้อง)</p>`);

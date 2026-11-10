@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bulk Void Envelope · User Flow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;   /* white-smoke */
+      --color-ink:     #010136;   /* ai-box-navy */
+      --color-muted:   #4f5d75;   /* blue-slate */
+      --color-accent:  #0463EF;   /* ai-box-blue */
+      --font-sans:     'Geist', 'IBM Plex Sans Thai', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'IBM Plex Sans Thai', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .frame { max-width: 1320px; width: 100%; }
+    /* The SVG holds its readable width (min-width == the viewBox width, so the
+       type ramp is never silently scaled down). This wrapper lets a narrow
+       screen scroll the diagram instead of the whole page. */
+    .diagram-container { width: 100%; overflow-x: auto; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+
+    svg { width: 100%; min-width: 1280px; display: block; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Swimlane · User Flow · AI-BOX</p>
+    <h1>Bulk Void Envelope</h1>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="bulk-void-title bulk-void-desc">
+        <title id="bulk-void-title">Bulk Void Envelope user flow</title>
+        <desc id="bulk-void-desc">Swimlane user flow in which a sender selects several envelopes and confirms a void with a reason, the system checks permissions and status then voids each eligible envelope, the sender reviews the per-envelope results, and recipients receive a void notice by email.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0463EF"/></marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+        <!-- Lane dividers -->
+        <line x1="40" y1="96" x2="1240" y2="96" stroke="rgba(1,1,54,0.22)" stroke-width="1"/>
+        <line x1="40" y1="256" x2="1240" y2="256" stroke="rgba(1,1,54,0.10)" stroke-width="1"/>
+        <line x1="40" y1="416" x2="1240" y2="416" stroke="rgba(1,1,54,0.10)" stroke-width="1"/>
+        <line x1="40" y1="576" x2="1240" y2="576" stroke="rgba(1,1,54,0.22)" stroke-width="1"/>
+
+        <!-- Actor column divider -->
+        <line x1="160" y1="96" x2="160" y2="576" stroke="rgba(1,1,54,0.22)" stroke-width="1"/>
+
+        <!-- Lane labels: Thai name (12px sans register) + Latin eyebrow -->
+        <text x="60" y="172" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ผู้ใช้</text>
+        <text x="60" y="190" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">SENDER</text>
+        <text x="60" y="332" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ระบบ</text>
+        <text x="60" y="350" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">SYSTEM</text>
+        <text x="60" y="492" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ผู้รับ</text>
+        <text x="60" y="510" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">RECIPIENT</text>
+
+        <!-- Arrows (drawn first) -->
+        <!-- 1. เลือกหลาย Envelope → ยืนยัน (within Sender) -->
+        <line x1="364" y1="176" x2="436" y2="176" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- 2. ยืนยัน → ตรวจสิทธิ์ (Sender → System, critical handoff, straight down) -->
+        <line x1="524" y1="204" x2="524" y2="308" stroke="#0463EF" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+        <!-- 3. ตรวจสิทธิ์ → Void (within System) -->
+        <line x1="612" y1="336" x2="676" y2="336" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- 4. Void → สรุปผล (within System) -->
+        <line x1="852" y1="336" x2="916" y2="336" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- 5. สรุปผล → ดูผล (System → Sender, straight up) -->
+        <line x1="1004" y1="308" x2="1004" y2="204" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- 6. Void → ผู้รับได้อีเมล (System → Recipient, straight down) -->
+        <line x1="764" y1="364" x2="764" y2="468" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- 7. ดูผล → เลือกใหม่ (retry loop, over the top, dashed) -->
+        <path d="M 1004,148 V 128 Q 1004,120 996,120 H 288 Q 280,120 280,128 V 148" fill="none" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+
+        <!-- Arrow labels (Thai: 12px sans, masked, 6-8px clear of the stroke) -->
+        <rect x="628" y="314" width="32" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="644" y="326" fill="#5a6580" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ผ่าน</text>
+
+        <rect x="532" y="268" width="60" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="562" y="280" fill="#0463EF" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ส่งคำขอ</text>
+
+        <rect x="1012" y="268" width="64" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="1044" y="280" fill="#5a6580" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">รายงานผล</text>
+
+        <rect x="772" y="424" width="64" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="804" y="436" fill="#5a6580" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">แจ้งผู้รับ</text>
+
+        <rect x="564" y="126" width="152" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="640" y="138" fill="#5a6580" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ลองใหม่เฉพาะที่พลาด</text>
+
+        <!-- Nodes -->
+        <!-- Sender: เลือกหลาย Envelope -->
+        <rect x="196" y="148" width="168" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="196" y="148" width="168" height="56" rx="6" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+        <text x="280" y="172" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">เลือกหลาย Envelope</text>
+        <text x="280" y="188" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">status: INPROCESS</text>
+
+        <!-- Sender: ยืนยัน + ระบุเหตุผล (coral→blue focal: irreversible) -->
+        <rect x="436" y="148" width="176" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="436" y="148" width="176" height="56" rx="6" fill="rgba(4,99,239,0.08)" stroke="#0463EF" stroke-width="1"/>
+        <text x="524" y="172" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ยืนยัน + ระบุเหตุผล</text>
+        <text x="524" y="188" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">reason required</text>
+
+        <!-- System: ตรวจสิทธิ์และสถานะ -->
+        <rect x="436" y="308" width="176" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="436" y="308" width="176" height="56" rx="6" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+        <text x="524" y="332" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ตรวจสิทธิ์และสถานะ</text>
+        <text x="524" y="348" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">skip VOID/SUCCESS/no role</text>
+
+        <!-- System: Void ทีละรายการ -->
+        <rect x="676" y="308" width="176" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="676" y="308" width="176" height="56" rx="6" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+        <text x="764" y="332" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">Void ทีละรายการ</text>
+        <text x="764" y="348" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">POST /eSignature/void</text>
+
+        <!-- System: สรุปผลรายรายการ -->
+        <rect x="916" y="308" width="176" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="916" y="308" width="176" height="56" rx="6" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+        <text x="1004" y="332" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">สรุปผลรายรายการ</text>
+        <text x="1004" y="348" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">ok · skipped · failed</text>
+
+        <!-- Sender: ดูผลและแก้ที่พลาด -->
+        <rect x="916" y="148" width="176" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="916" y="148" width="176" height="56" rx="6" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+        <text x="1004" y="172" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ดูผลและแก้ที่พลาด</text>
+        <text x="1004" y="188" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">retry failed only</text>
+
+        <!-- Recipient: ได้รับอีเมลแจ้งยกเลิก -->
+        <rect x="664" y="468" width="200" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="664" y="468" width="200" height="56" rx="6" fill="rgba(1,1,54,0.03)" stroke="rgba(1,1,54,0.30)" stroke-width="1"/>
+        <text x="764" y="492" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ได้รับอีเมลแจ้งยกเลิก</text>
+        <text x="764" y="508" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">email notice</text>
+
+        <!-- Legend -->
+        <line x1="40" y1="600" x2="1240" y2="600" stroke="rgba(1,1,54,0.10)" stroke-width="0.8"/>
+        <text x="40" y="624" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+
+        <rect x="40" y="644" width="14" height="10" rx="2" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+        <text x="60" y="653" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ขั้นตอน</text>
+
+        <rect x="148" y="644" width="14" height="10" rx="2" fill="rgba(4,99,239,0.08)" stroke="#0463EF" stroke-width="1"/>
+        <text x="168" y="653" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ขั้นที่ย้อนกลับไม่ได้</text>
+
+        <rect x="324" y="644" width="14" height="10" rx="2" fill="rgba(1,1,54,0.03)" stroke="rgba(1,1,54,0.30)" stroke-width="1"/>
+        <text x="344" y="653" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ผลที่เกิดกับผู้รับ</text>
+
+        <line x1="496" y1="649" x2="524" y2="649" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <text x="532" y="653" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ลำดับขั้น</text>
+
+        <line x1="628" y1="649" x2="656" y2="649" stroke="#0463EF" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+        <text x="664" y="653" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ส่งต่อสำคัญ</text>
+
+        <line x1="788" y1="649" x2="816" y2="649" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+        <text x="824" y="653" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">วนกลับ / ลองใหม่</text>
+      </svg>
+    </div>
+  </div>
+</body>
+</html>

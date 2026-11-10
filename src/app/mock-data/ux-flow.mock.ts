@@ -2,17 +2,19 @@ export interface UxFlowPrompt {
   text: string;
   icon: string;
   prompt: string;
+  /** Slug of a curated example flow in src/assets/flows/ (see scripts/generate-flow-diagrams.py). */
+  flow?: string;
 }
 
 export const MOCK_PROMPTS: UxFlowPrompt[] = [
-  { text: "Bulk Void Envelope", icon: "x-circle", prompt: "ออกแบบ Flow สำหรับ Feature ที่ให้ผู้ใช้สามารถ Bulk Void Envelope หลายรายการพร้อมกันได้" },
-  { text: "Real-time Dashboard", icon: "bar-chart-2", prompt: "ออกแบบ Flow สำหรับ Dashboard ที่แสดง Real-time Status ของ Envelope ทุกตัวในบริษัท" },
-  { text: "Delegate การเซ็น", icon: "users", prompt: "ออกแบบ Flow ที่ให้ Recipient สามารถ Delegate การเซ็นต่อให้คนอื่นได้" },
-  { text: "Template Sharing", icon: "share-2", prompt: "ออกแบบ Flow สำหรับ Feature แชร์ Template ให้ทีมอื่นในองค์กรสามารถใช้งานร่วมกันได้" },
-  { text: "E-Form Public Link", icon: "link", prompt: "ออกแบบ Flow สำหรับสร้าง Public Link ให้คนภายนอกองค์กรกรอก E-Form โดยไม่ต้อง Login" },
-  { text: "Recipient 2FA", icon: "shield", prompt: "ออกแบบ Flow การยืนยันตัวตนแบบ 2-Factor Authentication ก่อนที่ Recipient จะเซ็นเอกสาร" },
-  { text: "Envelope Reminder", icon: "bell", prompt: "ออกแบบ Flow สำหรับระบบ Reminder แจ้งเตือน Recipient ที่ยังไม่ได้เซ็นเอกสารใกล้หมดอายุ" },
-  { text: "Export Report", icon: "download", prompt: "ออกแบบ Flow สำหรับ Export Report สรุปสถิติการใช้งาน eSignature รายเดือน" }
+  { text: "Bulk Void Envelope", icon: "x-circle", prompt: "ออกแบบ Flow สำหรับ Feature ที่ให้ผู้ใช้สามารถ Bulk Void Envelope หลายรายการพร้อมกันได้", flow: "bulk-void-envelope" },
+  { text: "Real-time Dashboard", icon: "bar-chart-2", prompt: "ออกแบบ Flow สำหรับ Dashboard ที่แสดง Real-time Status ของ Envelope ทุกตัวในบริษัท", flow: "realtime-dashboard" },
+  { text: "Delegate การเซ็น", icon: "users", prompt: "ออกแบบ Flow ที่ให้ Recipient สามารถ Delegate การเซ็นต่อให้คนอื่นได้", flow: "delegate-signing" },
+  { text: "Template Sharing", icon: "share-2", prompt: "ออกแบบ Flow สำหรับ Feature แชร์ Template ให้ทีมอื่นในองค์กรสามารถใช้งานร่วมกันได้", flow: "template-sharing" },
+  { text: "E-Form Public Link", icon: "link", prompt: "ออกแบบ Flow สำหรับสร้าง Public Link ให้คนภายนอกองค์กรกรอก E-Form โดยไม่ต้อง Login", flow: "eform-public-link" },
+  { text: "Recipient 2FA", icon: "shield", prompt: "ออกแบบ Flow การยืนยันตัวตนแบบ 2-Factor Authentication ก่อนที่ Recipient จะเซ็นเอกสาร", flow: "recipient-2fa" },
+  { text: "Envelope Reminder", icon: "bell", prompt: "ออกแบบ Flow สำหรับระบบ Reminder แจ้งเตือน Recipient ที่ยังไม่ได้เซ็นเอกสารใกล้หมดอายุ", flow: "envelope-reminder" },
+  { text: "Export Report", icon: "download", prompt: "ออกแบบ Flow สำหรับ Export Report สรุปสถิติการใช้งาน eSignature รายเดือน", flow: "export-report" }
 ];
 
 export const MOCK_INFO_TEXTS: Record<string, { title: string, text: string }> = {

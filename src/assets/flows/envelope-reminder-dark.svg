@@ -1,0 +1,90 @@
+<svg viewBox="0 0 1280 720" width="1280" height="720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="envelope-reminder-dark-title envelope-reminder-dark-desc">
+  <title id="envelope-reminder-dark-title">Envelope reminder user flow</title>
+  <desc id="envelope-reminder-dark-desc">Swimlane user flow: a sender sets a reminder rule, the system checks pending envelopes near expiry and emails the recipient, repeating until the recipient signs, then stops reminding and updates the sender.</desc>
+  <defs>
+    <marker id="envelope-reminder-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bfc0c0"/></marker>
+    <marker id="envelope-reminder-dark-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4d94ff"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#0b1030"/>
+  <line x1="40" y1="96" x2="1240" y2="96" stroke="rgba(245,245,245,0.22)" stroke-width="1"/>
+  <line x1="40" y1="256" x2="1240" y2="256" stroke="rgba(245,245,245,0.10)" stroke-width="1"/>
+  <line x1="40" y1="416" x2="1240" y2="416" stroke="rgba(245,245,245,0.10)" stroke-width="1"/>
+  <line x1="40" y1="576" x2="1240" y2="576" stroke="rgba(245,245,245,0.22)" stroke-width="1"/>
+  <line x1="160" y1="96" x2="160" y2="576" stroke="rgba(245,245,245,0.22)" stroke-width="1"/>
+  <text x="60" y="172" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ผู้ส่ง</text>
+  <text x="60" y="190" fill="#bfc0c0" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">SENDER</text>
+  <text x="60" y="332" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ระบบ</text>
+  <text x="60" y="350" fill="#bfc0c0" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">SYSTEM</text>
+  <text x="60" y="492" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ผู้เซ็น</text>
+  <text x="60" y="510" fill="#bfc0c0" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">RECIPIENT</text>
+  <line x1="284" y1="204" x2="284" y2="308" stroke="#bfc0c0" stroke-width="1.2" marker-end="url(#envelope-reminder-dark-arrow)"/>
+  <line x1="372" y1="336" x2="436" y2="336" stroke="#bfc0c0" stroke-width="1.2" marker-end="url(#envelope-reminder-dark-arrow)"/>
+  <line x1="612" y1="336" x2="676" y2="336" stroke="#bfc0c0" stroke-width="1.2" marker-end="url(#envelope-reminder-dark-arrow)"/>
+  <line x1="764" y1="364" x2="764" y2="468" stroke="#bfc0c0" stroke-width="1.2" marker-end="url(#envelope-reminder-dark-arrow)"/>
+  <line x1="852" y1="496" x2="916" y2="496" stroke="#bfc0c0" stroke-width="1.2" marker-end="url(#envelope-reminder-dark-arrow)"/>
+  <line x1="1004" y1="468" x2="1004" y2="364" stroke="#4d94ff" stroke-width="1.4" marker-end="url(#envelope-reminder-dark-arrow-accent)"/>
+  <line x1="1004" y1="308" x2="1004" y2="204" stroke="#bfc0c0" stroke-width="1.2" marker-end="url(#envelope-reminder-dark-arrow)"/>
+  <path d="M 764,308 V 288 Q 764,280 756,280 H 532 Q 524,280 524,288 V 308" fill="none" stroke="#bfc0c0" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#envelope-reminder-dark-arrow)"/>
+  <rect x="292" y="264" width="40" height="16" rx="2" fill="#0b1030"/>
+  <text x="312" y="276" fill="#949eb2" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ตั้งกฎ</text>
+  <rect x="384" y="314" width="40" height="16" rx="2" fill="#0b1030"/>
+  <text x="404" y="326" fill="#949eb2" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ทุกวัน</text>
+  <rect x="618" y="314" width="52" height="16" rx="2" fill="#0b1030"/>
+  <text x="644" y="326" fill="#949eb2" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ใกล้หมด</text>
+  <rect x="772" y="424" width="52" height="16" rx="2" fill="#0b1030"/>
+  <text x="798" y="436" fill="#949eb2" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ส่งเตือน</text>
+  <rect x="862" y="474" width="44" height="16" rx="2" fill="#0b1030"/>
+  <text x="884" y="486" fill="#949eb2" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">กดเซ็น</text>
+  <rect x="1012" y="424" width="52" height="16" rx="2" fill="#0b1030"/>
+  <text x="1038" y="436" fill="#4d94ff" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">เซ็นแล้ว</text>
+  <rect x="1012" y="264" width="52" height="16" rx="2" fill="#0b1030"/>
+  <text x="1038" y="276" fill="#949eb2" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">แจ้งผู้ส่ง</text>
+  <rect x="584" y="286" width="120" height="16" rx="2" fill="#0b1030"/>
+  <text x="644" y="298" fill="#949eb2" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ยังไม่เซ็น: เตือนซ้ำ</text>
+  <rect x="196" y="148" width="176" height="56" rx="6" fill="#0b1030"/>
+  <rect x="196" y="148" width="176" height="56" rx="6" fill="rgba(245,245,245,0.04)" stroke="#f5f5f5" stroke-width="1"/>
+  <text x="284" y="172" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ตั้งกฎเตือนในเอกสาร</text>
+  <text x="284" y="188" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">before expiry · interval</text>
+  <rect x="916" y="148" width="176" height="56" rx="6" fill="#0b1030"/>
+  <rect x="916" y="148" width="176" height="56" rx="6" fill="rgba(245,245,245,0.04)" stroke="#f5f5f5" stroke-width="1"/>
+  <text x="1004" y="172" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">เห็นสถานะอัปเดต</text>
+  <text x="1004" y="188" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">tracking updated</text>
+  <rect x="196" y="308" width="176" height="56" rx="6" fill="#0b1030"/>
+  <rect x="196" y="308" width="176" height="56" rx="6" fill="rgba(245,245,245,0.04)" stroke="#f5f5f5" stroke-width="1"/>
+  <text x="284" y="332" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">บันทึกกำหนดเตือน</text>
+  <text x="284" y="348" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">schedule saved</text>
+  <rect x="436" y="308" width="176" height="56" rx="6" fill="#0b1030"/>
+  <rect x="436" y="308" width="176" height="56" rx="6" fill="rgba(245,245,245,0.04)" stroke="#f5f5f5" stroke-width="1"/>
+  <text x="524" y="332" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">เช็คเอกสารค้างเซ็น</text>
+  <text x="524" y="348" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">INPROCESS · near expiry</text>
+  <rect x="676" y="308" width="176" height="56" rx="6" fill="#0b1030"/>
+  <rect x="676" y="308" width="176" height="56" rx="6" fill="rgba(245,245,245,0.04)" stroke="#f5f5f5" stroke-width="1"/>
+  <text x="764" y="332" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ส่งอีเมลเตือน</text>
+  <text x="764" y="348" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">email reminder</text>
+  <rect x="916" y="308" width="176" height="56" rx="6" fill="#0b1030"/>
+  <rect x="916" y="308" width="176" height="56" rx="6" fill="rgba(245,245,245,0.04)" stroke="#f5f5f5" stroke-width="1"/>
+  <text x="1004" y="332" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">หยุดเตือนรายการนี้</text>
+  <text x="1004" y="348" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">stop reminders</text>
+  <rect x="676" y="468" width="176" height="56" rx="6" fill="#0b1030"/>
+  <rect x="676" y="468" width="176" height="56" rx="6" fill="rgba(245,245,245,0.02)" stroke="rgba(245,245,245,0.30)" stroke-width="1"/>
+  <text x="764" y="492" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ได้รับอีเมลเตือน</text>
+  <text x="764" y="508" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">link to sign</text>
+  <rect x="916" y="468" width="176" height="56" rx="6" fill="#0b1030"/>
+  <rect x="916" y="468" width="176" height="56" rx="6" fill="rgba(77,148,255,0.12)" stroke="#4d94ff" stroke-width="1"/>
+  <text x="1004" y="492" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">เซ็นเอกสาร</text>
+  <text x="1004" y="508" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">status: COMPLETE</text>
+  <line x1="40" y1="600" x2="1240" y2="600" stroke="rgba(245,245,245,0.10)" stroke-width="0.8"/>
+  <text x="40" y="624" fill="#bfc0c0" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+  <rect x="40" y="644" width="14" height="10" rx="2" fill="rgba(245,245,245,0.04)" stroke="#f5f5f5" stroke-width="1"/>
+  <text x="60" y="653" fill="#bfc0c0" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ขั้นตอน</text>
+  <rect x="124" y="644" width="14" height="10" rx="2" fill="rgba(77,148,255,0.12)" stroke="#4d94ff" stroke-width="1"/>
+  <text x="144" y="653" fill="#bfc0c0" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ผลลัพธ์ที่ต้องการ</text>
+  <rect x="260" y="644" width="14" height="10" rx="2" fill="rgba(245,245,245,0.02)" stroke="rgba(245,245,245,0.30)" stroke-width="1"/>
+  <text x="280" y="653" fill="#bfc0c0" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">อีเมลถึงผู้เซ็น</text>
+  <line x1="380" y1="649" x2="408" y2="649" stroke="#bfc0c0" stroke-width="1.2" marker-end="url(#envelope-reminder-dark-arrow)"/>
+  <text x="416" y="653" fill="#bfc0c0" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ลำดับขั้น</text>
+  <line x1="488" y1="649" x2="516" y2="649" stroke="#4d94ff" stroke-width="1.4" marker-end="url(#envelope-reminder-dark-arrow-accent)"/>
+  <text x="524" y="653" fill="#bfc0c0" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ส่งต่อสำคัญ</text>
+  <line x1="612" y1="649" x2="640" y2="649" stroke="#bfc0c0" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#envelope-reminder-dark-arrow)"/>
+  <text x="648" y="653" fill="#bfc0c0" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">เตือนซ้ำ</text>
+</svg>

@@ -11,10 +11,17 @@
       <div class="sidebar-section">
         <div class="sidebar-section-label">Quick Prompts</div>
         @for (p of prompts(); track p.text) {
-          <button class="nav-item" (click)="usePrompt(p.prompt)">
-            <lucide-icon [name]="p.icon" [size]="18" [strokeWidth]="2"></lucide-icon>
-            <span class="label">{{ p.text }}</span>
-          </button>
+          <div class="nav-row">
+            <button class="nav-item" (click)="usePrompt(p.prompt)">
+              <lucide-icon [name]="p.icon" [size]="18" [strokeWidth]="2"></lucide-icon>
+              <span class="label">{{ p.text }}</span>
+            </button>
+            @if (p.flow) {
+              <button class="nav-flow-btn" nz-tooltip nzTooltipTitle="ดู Flow ตัวอย่าง" nzTooltipPlacement="right" (click)="openFlowExample(p)">
+                <lucide-icon name="workflow" [size]="14"></lucide-icon>
+              </button>
+            }
+          </div>
         }
       </div>
 
@@ -286,7 +293,7 @@
 
 <nz-modal
   [(nzVisible)]="isDiagramModalVisible"
-  nzTitle="Flow Diagram"
+  [nzTitle]="diagramModalTitle()"
   [nzFooter]="null"
   [nzWidth]="'92vw'"
   [nzStyle]="{ top: '24px' }"

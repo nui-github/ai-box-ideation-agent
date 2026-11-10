@@ -1,0 +1,78 @@
+<svg viewBox="0 0 1280 720" width="1280" height="720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="eform-public-link-title eform-public-link-desc">
+  <title id="eform-public-link-title">E-Form public link user flow</title>
+  <desc id="eform-public-link-desc">Swimlane user flow: a creator opens a public link for an E-Form, shares it outside the system, an external guest fills the form without logging in, and the system validates and stores the response for the creator.</desc>
+  <defs>
+    <marker id="eform-public-link-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+    <marker id="eform-public-link-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0463EF"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#f5f5f5"/>
+  <line x1="40" y1="96" x2="1240" y2="96" stroke="rgba(1,1,54,0.22)" stroke-width="1"/>
+  <line x1="40" y1="256" x2="1240" y2="256" stroke="rgba(1,1,54,0.10)" stroke-width="1"/>
+  <line x1="40" y1="416" x2="1240" y2="416" stroke="rgba(1,1,54,0.10)" stroke-width="1"/>
+  <line x1="40" y1="576" x2="1240" y2="576" stroke="rgba(1,1,54,0.22)" stroke-width="1"/>
+  <line x1="160" y1="96" x2="160" y2="576" stroke="rgba(1,1,54,0.22)" stroke-width="1"/>
+  <text x="60" y="172" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ผู้สร้างฟอร์ม</text>
+  <text x="60" y="190" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">CREATOR</text>
+  <text x="60" y="332" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ระบบ</text>
+  <text x="60" y="350" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">SYSTEM</text>
+  <text x="60" y="492" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ผู้กรอกภายนอก</text>
+  <text x="60" y="510" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">GUEST</text>
+  <line x1="284" y1="204" x2="284" y2="308" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#eform-public-link-arrow)"/>
+  <path d="M 372,336 H 516 Q 524,336 524,328 V 204" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#eform-public-link-arrow)"/>
+  <path d="M 612,176 H 756 Q 764,176 764,184 V 468" fill="none" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#eform-public-link-arrow)"/>
+  <line x1="852" y1="496" x2="916" y2="496" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#eform-public-link-arrow)"/>
+  <line x1="1004" y1="468" x2="1004" y2="364" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#eform-public-link-arrow)"/>
+  <line x1="1004" y1="308" x2="1004" y2="204" stroke="#0463EF" stroke-width="1.4" marker-end="url(#eform-public-link-arrow-accent)"/>
+  <rect x="292" y="264" width="44" height="16" rx="2" fill="#f5f5f5"/>
+  <text x="314" y="276" fill="#5a6580" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ขอลิงก์</text>
+  <rect x="426" y="314" width="44" height="16" rx="2" fill="#f5f5f5"/>
+  <text x="448" y="326" fill="#5a6580" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ได้ลิงก์</text>
+  <rect x="772" y="314" width="84" height="16" rx="2" fill="#f5f5f5"/>
+  <text x="814" y="326" fill="#5a6580" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ส่งลิงก์ออกไป</text>
+  <rect x="864" y="474" width="40" height="16" rx="2" fill="#f5f5f5"/>
+  <text x="884" y="486" fill="#5a6580" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">กรอก</text>
+  <rect x="1012" y="424" width="52" height="16" rx="2" fill="#f5f5f5"/>
+  <text x="1038" y="436" fill="#5a6580" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ส่งข้อมูล</text>
+  <rect x="1012" y="264" width="68" height="16" rx="2" fill="#f5f5f5"/>
+  <text x="1046" y="276" fill="#0463EF" font-size="12" font-weight="500" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">แจ้งผู้สร้าง</text>
+  <rect x="196" y="148" width="176" height="56" rx="6" fill="#f5f5f5"/>
+  <rect x="196" y="148" width="176" height="56" rx="6" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+  <text x="284" y="172" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">สร้าง E-Form + เปิดลิงก์</text>
+  <text x="284" y="188" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">role: EFORM_CREATE</text>
+  <rect x="436" y="148" width="176" height="56" rx="6" fill="#f5f5f5"/>
+  <rect x="436" y="148" width="176" height="56" rx="6" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+  <text x="524" y="172" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">คัดลอกลิงก์ไปแชร์</text>
+  <text x="524" y="188" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">no login needed</text>
+  <rect x="916" y="148" width="176" height="56" rx="6" fill="#f5f5f5"/>
+  <rect x="916" y="148" width="176" height="56" rx="6" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+  <text x="1004" y="172" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">เห็นคำตอบที่ส่งเข้ามา</text>
+  <text x="1004" y="188" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">response list</text>
+  <rect x="196" y="308" width="176" height="56" rx="6" fill="#f5f5f5"/>
+  <rect x="196" y="308" width="176" height="56" rx="6" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+  <text x="284" y="332" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">สร้างลิงก์สาธารณะ</text>
+  <text x="284" y="348" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">tokenized URL</text>
+  <rect x="916" y="308" width="176" height="56" rx="6" fill="#f5f5f5"/>
+  <rect x="916" y="308" width="176" height="56" rx="6" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+  <text x="1004" y="332" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ตรวจและบันทึกคำตอบ</text>
+  <text x="1004" y="348" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">stored per link</text>
+  <rect x="676" y="468" width="176" height="56" rx="6" fill="#f5f5f5"/>
+  <rect x="676" y="468" width="176" height="56" rx="6" fill="rgba(4,99,239,0.08)" stroke="#0463EF" stroke-width="1"/>
+  <text x="764" y="492" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">เปิดแบบฟอร์ม</text>
+  <text x="764" y="508" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">no login required</text>
+  <rect x="916" y="468" width="176" height="56" rx="6" fill="#f5f5f5"/>
+  <rect x="916" y="468" width="176" height="56" rx="6" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+  <text x="1004" y="492" fill="#010136" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">กรอกและส่งข้อมูล</text>
+  <text x="1004" y="508" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">required fields checked</text>
+  <line x1="40" y1="600" x2="1240" y2="600" stroke="rgba(1,1,54,0.10)" stroke-width="0.8"/>
+  <text x="40" y="624" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+  <rect x="40" y="644" width="14" height="10" rx="2" fill="#ffffff" stroke="#010136" stroke-width="1"/>
+  <text x="60" y="653" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ขั้นตอน</text>
+  <rect x="124" y="644" width="14" height="10" rx="2" fill="rgba(4,99,239,0.08)" stroke="#0463EF" stroke-width="1"/>
+  <text x="144" y="653" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ขั้นที่ไม่ต้อง Login</text>
+  <line x1="276" y1="649" x2="304" y2="649" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#eform-public-link-arrow)"/>
+  <text x="312" y="653" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ลำดับขั้น</text>
+  <line x1="384" y1="649" x2="412" y2="649" stroke="#0463EF" stroke-width="1.4" marker-end="url(#eform-public-link-arrow-accent)"/>
+  <text x="420" y="653" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ส่งต่อสำคัญ</text>
+  <line x1="508" y1="649" x2="536" y2="649" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#eform-public-link-arrow)"/>
+  <text x="544" y="653" fill="#4f5d75" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ส่งต่อนอกระบบ</text>
+</svg>
