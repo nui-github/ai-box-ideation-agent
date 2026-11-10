@@ -116,7 +116,7 @@
                                 <lucide-icon [name]="section.icon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
                                 <span>{{ section.label }}</span>
                               </div>
-                              @if (section.mermaidCode) {
+                              @if (section.diagramCode) {
                                 <button class="diagram-expand-btn" nz-tooltip nzTooltipTitle="ขยายดูแผนภาพ" (click)="openDiagramModal(section.body)">
                                   <lucide-icon name="maximize-2" [size]="14"></lucide-icon>
                                 </button>
@@ -124,8 +124,8 @@
                             </div>
                             <div
                               class="section-card-body"
-                              [class.mermaid-diagram-wrap]="!!section.mermaidCode"
-                              (click)="section.mermaidCode ? openDiagramModal(section.body) : null"
+                              [class.mermaid-diagram-wrap]="!!section.diagramCode"
+                              (click)="section.diagramCode ? openDiagramModal(section.body) : null"
                             >
                               <div [innerHTML]="section.body"></div>
                             </div>

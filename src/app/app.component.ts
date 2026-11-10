@@ -6,6 +6,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { firstValueFrom } from 'rxjs';
 import mermaid from 'mermaid';
 import { mermaidConfig, applyFlowTheme } from './mermaid-theme';
+import { flowJsonToSvg } from './flow-diagram';
 
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
@@ -32,7 +33,9 @@ interface FlowSection {
   icon: string;
   cls: string;
   body?: SafeHtml;
-  mermaidCode?: string;
+  /** Source of the diagram: a `flow` JSON spec (preferred) or legacy `mermaid` code. */
+  diagramCode?: string;
+  diagramKind?: 'flow' | 'mermaid';
 }
 
 interface Message {
@@ -77,7 +80,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   private msg = inject(NzMessageService);
   private sanitizer = inject(DomSanitizer);
   private uxFlowService = inject(UxFlowService);
-  private mermaidCache = new Map<string, SafeHtml>();
+  private diagramCache = new Map<string, SafeHtml>();
   private mermaidIdCounter = 0;
 
   isSettingsVisible = signal(false);
@@ -154,9 +157,9 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
 
     // Re-render any diagrams already on screen so they pick up the new mermaid theme
     mermaid.initialize(mermaidConfig(nextMode));
-    this.mermaidCache.clear();
+    this.diagramCache.clear();
     for (const message of this.messages()) {
-      if (message.sections?.some(s => s.mermaidCode)) {
+      if (message.sections?.some(s => s.diagramCode)) {
         await this.hydrateMermaidSections(message.sections);
       }
     }
@@ -580,9 +583,12 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
           : { cls: "section-default", numCls: "step-num-default", dotCls: "bullet-dot-default", icon: "file", label: s.title || "" };
 
         if (s.title === "🗺️ Flow Diagram") {
-          const match = content.match(/```mermaid\n([\s\S]*?)```/);
+          const match = content.match(/```(flow|json|mermaid)\s*\n([\s\S]*?)```/);
           if (match) {
-            return { title: s.title, label: meta.label, icon: meta.icon, cls: meta.cls, mermaidCode: match[1].trim() };
+            return {
+              title: s.title, label: meta.label, icon: meta.icon, cls: meta.cls,
+              diagramCode: match[2].trim(), diagramKind: match[1] === 'mermaid' ? 'mermaid' : 'flow'
+            };
           }
           // Still streaming — fence not closed yet
           return {
@@ -602,23 +608,29 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
       .filter((s): s is FlowSection => s !== null);
   }
 
-  /** Renders any completed mermaid diagram sections to SVG in-place, caching by source so re-streamed/unchanged code is a no-op. */
+  /** Renders any completed diagram sections to SVG in-place, caching by source so re-streamed/unchanged code is a no-op. */
   async hydrateMermaidSections(sections: FlowSection[]): Promise<void> {
     for (const section of sections) {
-      if (!section.mermaidCode) continue;
+      if (!section.diagramCode) continue;
 
-      let svgHtml = this.mermaidCache.get(section.mermaidCode);
+      const cacheKey = `${section.diagramKind}:${section.diagramCode}`;
+      let svgHtml = this.diagramCache.get(cacheKey);
       if (!svgHtml) {
         try {
-          // Mermaid measures text at render time; wait for the web fonts or labels get clipped.
-          await document.fonts?.ready;
-          const themedCode = applyFlowTheme(section.mermaidCode, this.isDarkMode());
-          const { svg } = await mermaid.render(`mermaid-${this.mermaidIdCounter++}`, themedCode);
-          svgHtml = this.sanitizer.bypassSecurityTrustHtml(this.sizeSvgFromViewBox(svg));
+          if (section.diagramKind === 'mermaid') {
+            // Mermaid measures text at render time; wait for the web fonts or labels get clipped.
+            await document.fonts?.ready;
+            const themedCode = applyFlowTheme(section.diagramCode, this.isDarkMode());
+            const { svg } = await mermaid.render(`mermaid-${this.mermaidIdCounter++}`, themedCode);
+            svgHtml = this.sanitizer.bypassSecurityTrustHtml(this.sizeSvgFromViewBox(svg));
+          } else {
+            // Our own renderer: pure string output, no DOM measurement needed.
+            svgHtml = this.sanitizer.bypassSecurityTrustHtml(flowJsonToSvg(section.diagramCode, this.isDarkMode()));
+          }
         } catch (e) {
           svgHtml = this.sanitizer.bypassSecurityTrustHtml(`<p style="margin:0;color:var(--gray-6)">ไม่สามารถแสดงแผนภาพได้ (รูปแบบไม่ถูกต้อง)</p>`);
         }
-        this.mermaidCache.set(section.mermaidCode, svgHtml);
+        this.diagramCache.set(cacheKey, svgHtml);
       }
       section.body = svgHtml;
     }
