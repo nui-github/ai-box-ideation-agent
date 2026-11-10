@@ -116,6 +116,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   isDiagramModalVisible = signal(false);
   isPanning = signal(false);
   private pan: { x: number; y: number; left: number; top: number; id: number } | null = null;
+  private zoomAnimTimer: any;
   diagramModalSvg = signal<SafeHtml | null>(null);
   diagramModalTitle = signal('Flow Diagram');
   diagramZoom = signal(1);
@@ -262,6 +263,39 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     this.diagramCanvas?.nativeElement.releasePointerCapture?.(e.pointerId);
     this.pan = null;
     this.isPanning.set(false);
+  }
+
+  /** Scroll wheel / trackpad pinch zooms the diagram, keeping the point under the cursor fixed. */
+  onDiagramWheel(e: WheelEvent) {
+    const canvas = this.diagramCanvas?.nativeElement;
+    const stage = this.diagramStage?.nativeElement;
+    if (!canvas || !stage) return;
+    e.preventDefault();
+
+    const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1;
+    const old = this.diagramZoom();
+    const next = Math.min(2.5, Math.max(0.25, +(old * Math.exp(-e.deltaY * unit * 0.0015)).toFixed(3)));
+    if (next === old) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const style = getComputedStyle(canvas);
+    const padLeft = parseFloat(style.paddingLeft);
+    const padTop = parseFloat(style.paddingTop);
+    const mx = e.clientX - rect.left - canvas.clientLeft;
+    const my = e.clientY - rect.top - canvas.clientTop;
+    // Diagram-space point under the cursor before zooming.
+    const px = (canvas.scrollLeft + mx - padLeft) / old;
+    const py = (canvas.scrollTop + my - padTop) / old;
+
+    // Apply immediately and without the button-zoom transition, so the scroll
+    // extents are already final when we re-anchor.
+    stage.style.transition = 'none';
+    stage.style.transform = `scale(${next})`;
+    this.diagramZoom.set(next);
+    canvas.scrollLeft = px * next + padLeft - mx;
+    canvas.scrollTop = py * next + padTop - my;
+    clearTimeout(this.zoomAnimTimer);
+    this.zoomAnimTimer = setTimeout(() => (stage.style.transition = ''), 150);
   }
 
   zoomIn() {

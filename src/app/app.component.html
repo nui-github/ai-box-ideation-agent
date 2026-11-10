@@ -331,7 +331,7 @@
     </div>
     <div class="diagram-modal-canvas" #diagramCanvas [class.panning]="isPanning()"
          (pointerdown)="onPanStart($event)" (pointermove)="onPanMove($event)" (pointerup)="onPanEnd($event)" (pointercancel)="onPanEnd($event)"
-         (dragstart)="$event.preventDefault()">
+         (dragstart)="$event.preventDefault()" (wheel)="onDiagramWheel($event)">
       <div class="diagram-modal-stage" #diagramStage [style.transform]="'scale(' + diagramZoom() + ')'" [innerHTML]="diagramModalSvg()"></div>
     </div>
   </ng-container>
