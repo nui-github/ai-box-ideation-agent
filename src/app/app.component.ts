@@ -499,6 +499,8 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
            }
         }
         
+        if (fullText.trim()) await this.finalizeLastMessage(fullText);
+
         if (!fullText.trim()) {
            throw new Error("เซิร์ฟเวอร์ตอบกลับสำเร็จ แต่ไม่มีข้อมูลข้อความ (อาจถูกบล็อกด้วย Safety Filter หรือรูปแบบคำถามไม่ถูกต้อง)");
         }
@@ -532,6 +534,10 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
       }
 
       this.msg.error('เกิดข้อผิดพลาด: ' + errorMsg, { nzDuration: 6000 });
+
+      // Keep whatever arrived, but stop showing "still generating" for a diagram that never closed.
+      const partial = this.messages().at(-1);
+      if (partial?.role === 'assistant' && partial.rawContent?.trim()) await this.finalizeLastMessage(partial.rawContent);
       
       // Remove the placeholder assistant message if it's empty so it doesn't corrupt history
       this.messages.update(msgs => {
@@ -555,7 +561,18 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     "🎨 UI Components":   { cls: "section-ui",        numCls: "step-num-ui",       dotCls: "bullet-dot-ui",       icon: "palette",        label: "UI Components" },
   };
 
-  parseSections(text: string): FlowSection[] {
+  private async finalizeLastMessage(fullText: string) {
+    const sections = this.parseSections(fullText, true);
+    await this.hydrateMermaidSections(sections);
+    this.messages.update(msgs => {
+      const next = [...msgs];
+      next[next.length - 1] = { role: 'assistant', rawContent: fullText, sections };
+      return next;
+    });
+  }
+
+  /** `final` = the stream has ended (or died): an unclosed diagram fence will never complete. */
+  parseSections(text: string, final = false): FlowSection[] {
     const raw: { title: string | null, lines: string[] }[] = [];
     let cur: { title: string | null, lines: string[] } | null = null;
 
@@ -590,10 +607,11 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
               diagramCode: match[2].trim(), diagramKind: match[1] === 'mermaid' ? 'mermaid' : 'flow'
             };
           }
-          // Still streaming — fence not closed yet
+          // Fence not closed yet: still streaming, or the stream ended before the diagram finished
+          const note = final ? 'แผนภาพไม่สมบูรณ์ (การเชื่อมต่อถูกตัด) กรุณาลองส่งคำถามอีกครั้ง' : 'กำลังสร้างแผนภาพ...';
           return {
             title: s.title, label: meta.label, icon: meta.icon, cls: meta.cls,
-            body: this.sanitizer.bypassSecurityTrustHtml(`<p style="margin:0;color:var(--gray-6)">กำลังสร้างแผนภาพ...</p>`)
+            body: this.sanitizer.bypassSecurityTrustHtml(`<p style="margin:0;color:var(--gray-6)">${note}</p>`)
           };
         }
 

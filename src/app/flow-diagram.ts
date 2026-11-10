@@ -12,7 +12,7 @@
  * diagrams in scripts/generate-flow-diagrams.py.
  */
 
-export type FlowKind = 'step' | 'focal' | 'effect';
+export type FlowKind = 'step' | 'focal' | 'effect' | 'decision';
 export type FlowEdgeStyle = 'solid' | 'accent' | 'dash';
 
 export interface FlowLaneSpec { name: string; tag: string; }
@@ -26,6 +26,7 @@ const LABEL_COL = 160;
 const TOP = 96;
 const LANE_H = 160;
 const NODE_H = 56;
+const DECISION_H = 80;
 const NODE_W = 176;
 const COL_X0 = 196;
 const PITCH = 240;
@@ -38,18 +39,18 @@ const MAX_LANES = 6;
 
 interface Palette {
   paper: string; ink: string; muted: string; soft: string; accent: string; tint: string;
-  nodeFill: string; effectFill: string; effectStroke: string; ruleStrong: string; ruleWeak: string;
+  nodeFill: string; decisionFill: string; effectFill: string; effectStroke: string; ruleStrong: string; ruleWeak: string;
 }
 
 const LIGHT: Palette = {
   paper: '#f5f5f5', ink: '#010136', muted: '#4f5d75', soft: '#5a6580', accent: '#0463EF',
-  tint: 'rgba(4,99,239,0.08)', nodeFill: '#ffffff',
+  tint: 'rgba(4,99,239,0.08)', nodeFill: '#ffffff', decisionFill: 'rgba(1,1,54,0.06)',
   effectFill: 'rgba(1,1,54,0.03)', effectStroke: 'rgba(1,1,54,0.30)',
   ruleStrong: 'rgba(1,1,54,0.22)', ruleWeak: 'rgba(1,1,54,0.10)',
 };
 const DARK: Palette = {
   paper: '#0b1030', ink: '#f5f5f5', muted: '#bfc0c0', soft: '#949eb2', accent: '#4d94ff',
-  tint: 'rgba(77,148,255,0.12)', nodeFill: 'rgba(245,245,245,0.04)',
+  tint: 'rgba(77,148,255,0.12)', nodeFill: 'rgba(245,245,245,0.04)', decisionFill: 'rgba(245,245,245,0.08)',
   effectFill: 'rgba(245,245,245,0.02)', effectStroke: 'rgba(245,245,245,0.30)',
   ruleStrong: 'rgba(245,245,245,0.22)', ruleWeak: 'rgba(245,245,245,0.10)',
 };
@@ -121,7 +122,7 @@ export function normalizeSpec(raw: any): FlowSpec {
       const byName = lanes.findIndex(l => l.name === String(n.lane ?? '').trim());
       lane = byName >= 0 ? byName : 0;
     }
-    const kind: FlowKind = n.kind === 'focal' || n.kind === 'effect' ? n.kind : 'step';
+    const kind: FlowKind = n.kind === 'focal' || n.kind === 'effect' || n.kind === 'decision' ? n.kind : 'step';
     nodes.push({ id, lane: Math.max(0, Math.floor(lane)), name: String(n.name ?? id).trim(), sub: String(n.sub ?? '').trim(), kind });
   }
   if (nodes.length < 2) throw new Error('flow needs at least 2 nodes');
@@ -159,7 +160,7 @@ type Seg = [number, number, number, number];
 
 interface PNode {
   spec: FlowNodeSpec; id: string; lane: number; col: number;
-  x: number; y: number; w: number; cx: number; cy: number; name: string; sub: string;
+  x: number; y: number; w: number; h: number; cx: number; cy: number; name: string; sub: string;
 }
 
 interface PEdge {
@@ -249,11 +250,21 @@ function assignColumns(nodes: FlowNodeSpec[], edges: FlowEdgeSpec[]): Map<string
 }
 
 function port(n: PNode, side: Side, off: number): Pt {
+  if (n.spec.kind === 'decision') {
+    // Connectors meet the diamond's boundary: offsets slide along the slanted edges.
+    const inset = (limit: number) => 1 - Math.min(Math.abs(off), limit) / limit;
+    switch (side) {
+      case 'right': return [n.cx + (n.w / 2) * inset(n.h / 2), n.cy + off];
+      case 'left': return [n.cx - (n.w / 2) * inset(n.h / 2), n.cy + off];
+      case 'top': return [n.cx + off, n.cy - (n.h / 2) * inset(n.w / 2)];
+      default: return [n.cx + off, n.cy + (n.h / 2) * inset(n.w / 2)];
+    }
+  }
   switch (side) {
     case 'right': return [n.x + n.w, n.cy + off];
     case 'left': return [n.x, n.cy + off];
     case 'top': return [n.cx + off, n.y];
-    default: return [n.cx + off, n.y + NODE_H];
+    default: return [n.cx + off, n.y + n.h];
   }
 }
 
@@ -309,12 +320,14 @@ function buildPath(p1: Pt, s1: Side, p2: Pt, s2: Side, loopY?: number, shift = 0
     const sx = sign(x2 - x1);
     if (s1 === 'top') {
       const ly = loopY ?? Math.min(y1, y2) - 28;
+      if (y1 < ly + R || y2 < ly + R) return null;
       return {
         d: `M ${f(x1)},${f(y1)} V ${f(ly + R)} Q ${f(x1)},${f(ly)} ${f(x1 + sx * R)},${f(ly)} H ${f(x2 - sx * R)} Q ${f(x2)},${f(ly)} ${f(x2)},${f(ly + R)} V ${f(y2)}`,
         segs: [[x1, y1, x1, ly], [x1, ly, x2, ly], [x2, ly, x2, y2]],
       };
     }
     const ly = loopY ?? Math.max(y1, y2) + 28;
+    if (y1 > ly - R || y2 > ly - R) return null;
     return {
       d: `M ${f(x1)},${f(y1)} V ${f(ly - R)} Q ${f(x1)},${f(ly)} ${f(x1 + sx * R)},${f(ly)} H ${f(x2 - sx * R)} Q ${f(x2)},${f(ly)} ${f(x2)},${f(ly - R)} V ${f(y2)}`,
       segs: [[x1, y1, x1, ly], [x1, ly, x2, ly], [x2, ly, x2, y2]],
@@ -389,14 +402,17 @@ export function renderFlowSvg(spec: FlowSpec, dark: boolean): string {
   for (const n of spec.nodes) {
     const col = cols.get(n.id) ?? 0;
     const cx = COL_X0 + col * PITCH + NODE_W / 2;
-    const y = TOP + n.lane * LANE_H + 52;
+    const h = n.kind === 'decision' ? DECISION_H : NODE_H;
+    const cy = TOP + n.lane * LANE_H + LANE_H / 2;
+    const y = cy - h / 2;
     nodes.set(n.id, {
-      spec: n, id: n.id, lane: n.lane, col, x: cx - NODE_W / 2, y, w: NODE_W, cx, cy: y + NODE_H / 2,
-      name: fit(n.name, NODE_W - 16, 7.2), sub: fit(n.sub, NODE_W - 16, 5.58),
+      spec: n, id: n.id, lane: n.lane, col, x: cx - NODE_W / 2, y, w: NODE_W, h, cx, cy,
+      name: fit(n.name, n.kind === 'decision' ? 100 : NODE_W - 16, 7.2),
+      sub: n.kind === 'decision' ? '' : fit(n.sub, NODE_W - 16, 5.58),
     });
   }
   const all = [...nodes.values()];
-  const nodeRects = all.map(n => [n.x, n.y, n.w, NODE_H]);
+  const nodeRects = all.map(n => [n.x, n.y, n.w, n.h]);
   const maxRight = Math.max(...all.map(n => n.x + n.w));
   const RIGHT = Math.max(MIN_RIGHT, maxRight + 148);
   const W = RIGHT + 40;
@@ -419,7 +435,7 @@ export function renderFlowSvg(spec: FlowSpec, dark: boolean): string {
       if (!fallback) fallback = [s1, s2];
       const clear = built.segs.every(seg => {
         const sr = segRect(seg);
-        return all.every(n => n === a || n === b || !overlaps(sr, [n.x, n.y, n.w, NODE_H], 2));
+        return all.every(n => n === a || n === b || !overlaps(sr, [n.x, n.y, n.w, n.h], 2));
       });
       if (clear) { chosen = [s1, s2]; break; }
     }
@@ -476,7 +492,7 @@ export function renderFlowSvg(spec: FlowSpec, dark: boolean): string {
   const collides = (segs: Seg[], placedSegs: Seg[], tol: number) => segs.some(s1 => placedSegs.some(s2 => band(s1, s2, tol)));
   const hitsNode = (segs: Seg[], pe: PEdge) => segs.some(sg => {
     const sr = segRect(sg);
-    return all.some(n => n !== pe.a && n !== pe.b && overlaps(sr, [n.x, n.y, n.w, NODE_H], 2));
+    return all.some(n => n !== pe.a && n !== pe.b && overlaps(sr, [n.x, n.y, n.w, n.h], 2));
   });
   const isLoop = (pe: PEdge) => pe.s1 === pe.s2 && !isH(pe.s1);
   const isShiftable = (pe: PEdge) => {
@@ -617,10 +633,17 @@ export function renderFlowSvg(spec: FlowSpec, dark: boolean): string {
 
   for (const n of all) {
     const kind = n.spec.kind;
+    if (kind === 'decision') {
+      const pts = `${n.cx},${n.y} ${n.x + n.w},${n.cy} ${n.cx},${n.y + n.h} ${n.x},${n.cy}`;
+      w(`  <polygon points="${pts}" fill="${pal.paper}"/>`);
+      w(`  <polygon points="${pts}" fill="${pal.decisionFill}" stroke="${pal.ink}" stroke-width="1" stroke-linejoin="round"/>`);
+      w(`  <text x="${n.cx}" y="${n.cy + 4}" fill="${pal.ink}" font-size="12" font-weight="600" font-family="${SANS}" text-anchor="middle">${esc(n.name)}</text>`);
+      continue;
+    }
     const fill = kind === 'focal' ? pal.tint : kind === 'effect' ? pal.effectFill : pal.nodeFill;
     const stroke = kind === 'focal' ? pal.accent : kind === 'effect' ? pal.effectStroke : pal.ink;
-    w(`  <rect x="${n.x}" y="${n.y}" width="${n.w}" height="${NODE_H}" rx="6" fill="${pal.paper}"/>`);
-    w(`  <rect x="${n.x}" y="${n.y}" width="${n.w}" height="${NODE_H}" rx="6" fill="${fill}" stroke="${stroke}" stroke-width="1"/>`);
+    w(`  <rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="6" fill="${pal.paper}"/>`);
+    w(`  <rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="6" fill="${fill}" stroke="${stroke}" stroke-width="1"/>`);
     w(`  <text x="${n.cx}" y="${n.y + (n.sub ? 24 : 32)}" fill="${pal.ink}" font-size="12" font-weight="600" font-family="${SANS}" text-anchor="middle">${esc(n.name)}</text>`);
     if (n.sub) w(`  <text x="${n.cx}" y="${n.y + 40}" fill="${pal.muted}" font-size="9" font-family="${MONO}" text-anchor="middle">${esc(n.sub)}</text>`);
   }
@@ -630,6 +653,7 @@ export function renderFlowSvg(spec: FlowSpec, dark: boolean): string {
   w(`  <line x1="${LEFT}" y1="${ly}" x2="${RIGHT}" y2="${ly}" stroke="${pal.ruleWeak}" stroke-width="0.8"/>`);
   w(`  <text x="${LEFT}" y="${ly + 24}" fill="${pal.muted}" font-size="8" font-family="${MONO}" letter-spacing="0.18em">LEGEND</text>`);
   const items: [string, string][] = [['step', 'ขั้นตอน']];
+  if (all.some(n => n.spec.kind === 'decision')) items.push(['decision', 'จุดตัดสินใจ']);
   if (all.some(n => n.spec.kind === 'focal')) items.push(['focal', 'ขั้นสำคัญ']);
   if (all.some(n => n.spec.kind === 'effect')) items.push(['effect', 'ผลที่เกิดขึ้น']);
   items.push(['arrow', 'ลำดับขั้น']);
@@ -639,7 +663,10 @@ export function renderFlowSvg(spec: FlowSpec, dark: boolean): string {
   const iy = ly + 44;
   for (const [kind, label] of items) {
     let tx: number;
-    if (kind === 'step' || kind === 'focal' || kind === 'effect') {
+    if (kind === 'decision') {
+      w(`  <polygon points="${lx + 8},${iy - 1} ${lx + 16},${iy + 5} ${lx + 8},${iy + 11} ${lx},${iy + 5}" fill="${pal.decisionFill}" stroke="${pal.ink}" stroke-width="1" stroke-linejoin="round"/>`);
+      tx = lx + 22;
+    } else if (kind === 'step' || kind === 'focal' || kind === 'effect') {
       const fill = kind === 'focal' ? pal.tint : kind === 'effect' ? pal.effectFill : pal.nodeFill;
       const stroke = kind === 'focal' ? pal.accent : kind === 'effect' ? pal.effectStroke : pal.ink;
       w(`  <rect x="${lx}" y="${iy}" width="14" height="10" rx="2" fill="${fill}" stroke="${stroke}" stroke-width="1"/>`);
