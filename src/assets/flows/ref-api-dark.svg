@@ -1,11 +1,11 @@
-<svg viewBox="0 0 1280 688" width="1280" height="688" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ref-api-dark-title ref-api-dark-desc">
+<svg viewBox="8 16 1264 640" width="1264" height="640" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ref-api-dark-title ref-api-dark-desc">
   <title id="ref-api-dark-title">API Endpoints overview</title>
   <desc id="ref-api-dark-desc">Architecture overview: the app calls three API groups: document management, sharing, and template and E-Form, with the document group highlighted as the core.</desc>
   <defs>
     <marker id="ref-api-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bfc0c0"/></marker>
     <marker id="ref-api-dark-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4d94ff"/></marker>
   </defs>
-  <rect width="100%" height="100%" fill="#0b1030"/>
+  <rect x="8" y="16" width="1264" height="640" fill="#0b1030"/>
   <line x1="280" y1="122" x2="380" y2="122" stroke="#bfc0c0" stroke-width="1.2" marker-end="url(#ref-api-dark-arrow)"/>
   <line x1="280" y1="294" x2="380" y2="294" stroke="#bfc0c0" stroke-width="1.2" marker-end="url(#ref-api-dark-arrow)"/>
   <line x1="280" y1="466" x2="380" y2="466" stroke="#bfc0c0" stroke-width="1.2" marker-end="url(#ref-api-dark-arrow)"/>

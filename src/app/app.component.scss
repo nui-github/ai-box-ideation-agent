@@ -328,11 +328,18 @@
     background: var(--bg-card); display: flex; align-items: center; justify-content: center;
     cursor: pointer; color: var(--text-primary);
   }
+  .diagram-modal-toolbar .btn-icon-small { padding: 0; }
+  .diagram-modal-toolbar .btn-icon-small lucide-icon,
+  .diagram-modal-toolbar .btn-icon-small ::ng-deep lucide-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .diagram-modal-toolbar .btn-icon-small svg { display: block; }
   .diagram-modal-toolbar .btn-icon-small:disabled { opacity: 0.4; cursor: not-allowed; }
   .diagram-modal-toolbar .btn-icon-small:not(:disabled):hover { border-color: var(--primary-color); color: var(--primary-color); }
   .diagram-zoom-label { min-width: 48px; text-align: center; font-size: 13px; font-weight: 600; color: var(--text-primary); margin: 0 4px; }
   .diagram-modal-canvas {
-    overflow: auto; height: calc(100vh - 190px); padding: 32px;
+    overflow: auto; height: calc(100vh - 190px); padding: 16px;
+    display: flex;
     background-color: var(--diagram-canvas-bg);
     background-image: radial-gradient(var(--diagram-dot-color) 1px, transparent 1px);
     background-size: 20px 20px;
@@ -341,7 +348,11 @@
     user-select: none;
     &.panning { cursor: grabbing; }
   }
+  /* Footprint of the *scaled* diagram: transforms don't change layout, so size the scroll area explicitly.
+     Auto margins centre it when it fits and degrade to normal scrolling when it doesn't. */
+  .diagram-modal-sizer { position: relative; flex: none; margin: auto; transition: width 0.15s ease-out, height 0.15s ease-out; }
   .diagram-modal-stage { display: inline-block; transform-origin: 0 0; transition: transform 0.15s ease-out; }
+  .diagram-modal-sizer.sized .diagram-modal-stage { position: absolute; top: 0; left: 0; }
 
   /* Numbered steps & bullets */
   .step-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-start; }

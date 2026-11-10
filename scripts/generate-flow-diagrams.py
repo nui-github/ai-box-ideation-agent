@@ -257,20 +257,49 @@ def render(flow, dark):
         e.check_clear(nodes)
 
     base = TOP + n_lanes * LANE_H
-    H = base + 144
     dividers = [TOP + i * LANE_H for i in range(n_lanes + 1)]
+
+    # Frame the real content with equal padding on every side (no dead space right/bottom).
+    pad = 32
+    label_spots = {}
+    for e in edges:
+        if e.label:
+            label_spots[id(e)] = place_label(e, nodes, dividers)
+    items = [("step", "ขั้นตอน")]
+    if any(n.kind == "focal" for n in nodes.values()):
+        items.append(("focal", flow.get("focal_legend", "ขั้นสำคัญ")))
+    if any(n.kind == "effect" for n in nodes.values()):
+        items.append(("effect", flow.get("effect_legend", "ผลต่อผู้เกี่ยวข้อง")))
+    items.append(("arrow", "ลำดับขั้น"))
+    if any(e.style == "accent" for e in edges):
+        items.append(("accent", "ส่งต่อสำคัญ"))
+    if any(e.style == "dash" for e in edges):
+        items.append(("dash", flow.get("dash_legend", "วนกลับ / ทางเลือก")))
+    legend_x = LEFT
+    for kind, label in items:
+        legend_x = ceil4(legend_x + (20 if kind in ("step", "focal", "effect") else 36) + text_w(label) + 28)
+    content_right = max([n.x + n.w for n in nodes.values()] + [legend_x - 28])
+    for e in edges:
+        for seg in e.segs:
+            content_right = max(content_right, seg[0], seg[2])
+    for mx, my, lw in label_spots.values():
+        content_right = max(content_right, mx + lw)
+    RIGHT = int(math.ceil(content_right)) + pad
+    vx, vy = LEFT - pad, TOP - pad
+    vw = RIGHT - LEFT + 2 * pad
+    vh = base + 80 - TOP + 2 * pad
 
     out = []
     w = out.append
-    w('<svg viewBox="0 0 %d %d" width="%d" height="%d" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="%s-title %s-desc">'
-      % (W, H, W, H, slug, slug))
+    w('<svg viewBox="%d %d %d %d" width="%d" height="%d" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="%s-title %s-desc">'
+      % (vx, vy, vw, vh, vw, vh, slug, slug))
     w('  <title id="%s-title">%s</title>' % (slug, esc(flow["title"])))
     w('  <desc id="%s-desc">%s</desc>' % (slug, esc(flow["desc"])))
     w('  <defs>')
     w('    <marker id="%s-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="%s"/></marker>' % (slug, pal["muted"]))
     w('    <marker id="%s-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="%s"/></marker>' % (slug, pal["accent"]))
     w('  </defs>')
-    w('  <rect width="100%%" height="100%%" fill="%s"/>' % pal["paper"])
+    w('  <rect x="%d" y="%d" width="%d" height="%d" fill="%s"/>' % (vx, vy, vw, vh, pal["paper"]))
 
     # Lane dividers + actor column
     for i, y in enumerate(dividers):
@@ -300,7 +329,7 @@ def render(flow, dark):
     for e in edges:
         if not e.label:
             continue
-        mx, my, lw = place_label(e, nodes, dividers)
+        mx, my, lw = label_spots[id(e)]
         color = pal["accent"] if e.style == "accent" else pal["soft"]
         w('  <rect x="%d" y="%d" width="%d" height="%d" rx="2" fill="%s"/>' % (mx, my, lw, LABEL_H, pal["paper"]))
         w('  <text x="%s" y="%d" fill="%s" font-size="12" font-weight="500" font-family="%s" text-anchor="middle">%s</text>'
@@ -324,16 +353,6 @@ def render(flow, dark):
     ly = base + 24
     w('  <line x1="%d" y1="%d" x2="%d" y2="%d" stroke="%s" stroke-width="0.8"/>' % (LEFT, ly, RIGHT, ly, pal["rule_weak"]))
     w('  <text x="%d" y="%d" fill="%s" font-size="8" font-family="%s" letter-spacing="0.18em">LEGEND</text>' % (LEFT, ly + 24, pal["muted"], MONO))
-    items = [("step", "ขั้นตอน")]
-    if any(n.kind == "focal" for n in nodes.values()):
-        items.append(("focal", flow.get("focal_legend", "ขั้นสำคัญ")))
-    if any(n.kind == "effect" for n in nodes.values()):
-        items.append(("effect", flow.get("effect_legend", "ผลต่อผู้เกี่ยวข้อง")))
-    items.append(("arrow", "ลำดับขั้น"))
-    if any(e.style == "accent" for e in edges):
-        items.append(("accent", "ส่งต่อสำคัญ"))
-    if any(e.style == "dash" for e in edges):
-        items.append(("dash", flow.get("dash_legend", "วนกลับ / ทางเลือก")))
     x = LEFT
     iy = ly + 44
     for kind, label in items:

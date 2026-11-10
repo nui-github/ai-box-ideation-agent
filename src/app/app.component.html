@@ -117,7 +117,7 @@
                                 <span>{{ section.label }}</span>
                               </div>
                               @if (section.diagramCode) {
-                                <button class="diagram-expand-btn" nz-tooltip nzTooltipTitle="ขยายดูแผนภาพ" (click)="openDiagramModal(section.body)">
+                                <button class="diagram-expand-btn" nz-tooltip nzTooltipTitle="ขยายดูแผนภาพ" (click)="openDiagramModal(section.body, section.diagramSize)">
                                   <lucide-icon name="maximize-2" [size]="14"></lucide-icon>
                                 </button>
                               }
@@ -125,7 +125,7 @@
                             <div
                               class="section-card-body"
                               [class.mermaid-diagram-wrap]="!!section.diagramCode"
-                              (click)="section.diagramCode ? openDiagramModal(section.body) : null"
+                              (click)="section.diagramCode ? openDiagramModal(section.body, section.diagramSize) : null"
                             >
                               <div [innerHTML]="section.body"></div>
                             </div>
@@ -332,7 +332,11 @@
     <div class="diagram-modal-canvas" #diagramCanvas [class.panning]="isPanning()"
          (pointerdown)="onPanStart($event)" (pointermove)="onPanMove($event)" (pointerup)="onPanEnd($event)" (pointercancel)="onPanEnd($event)"
          (dragstart)="$event.preventDefault()" (wheel)="onDiagramWheel($event)">
-      <div class="diagram-modal-stage" #diagramStage [style.transform]="'scale(' + diagramZoom() + ')'" [innerHTML]="diagramModalSvg()"></div>
+      <div class="diagram-modal-sizer" [class.sized]="!!diagramNatural()"
+           [style.width.px]="diagramNatural() ? diagramNatural()!.w * diagramZoom() : null"
+           [style.height.px]="diagramNatural() ? diagramNatural()!.h * diagramZoom() : null">
+        <div class="diagram-modal-stage" #diagramStage [style.transform]="'scale(' + diagramZoom() + ')'" [innerHTML]="diagramModalSvg()"></div>
+      </div>
     </div>
   </ng-container>
 </nz-modal>

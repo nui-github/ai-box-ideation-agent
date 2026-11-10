@@ -28,18 +28,10 @@ W, LEFT, RIGHT = flows.W, flows.LEFT, flows.RIGHT
 
 
 class Svg(object):
-    def __init__(self, slug, title, desc, height, pal):
-        self.slug, self.pal, self.h = slug, pal, height
+    def __init__(self, slug, title, desc, pal):
+        self.slug, self.pal = slug, pal
+        self.title, self.desc = title, desc
         self.out = []
-        w = self.out.append
-        w('<svg viewBox="0 0 %d %d" width="%d" height="%d" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="%s-title %s-desc">' % (W, height, W, height, slug, slug))
-        w('  <title id="%s-title">%s</title>' % (slug, esc(title)))
-        w('  <desc id="%s-desc">%s</desc>' % (slug, esc(desc)))
-        w('  <defs>')
-        w('    <marker id="%s-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="%s"/></marker>' % (slug, pal["muted"]))
-        w('    <marker id="%s-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="%s"/></marker>' % (slug, pal["accent"]))
-        w('  </defs>')
-        w('  <rect width="100%%" height="100%%" fill="%s"/>' % pal["paper"])
 
     def add(self, s):
         self.out.append(s)
@@ -85,10 +77,10 @@ class Svg(object):
         self.add('  <rect x="%d" y="%d" width="%d" height="16" rx="2" fill="%s"/>' % (cx - lw // 2, y, lw, self.pal["paper"]))
         self.text(cx, y + 12, s, 12, "500", color or self.pal["soft"], SANS, "middle")
 
-    def legend(self, base, items, note=None):
+    def legend(self, base, items, note=None, right=RIGHT):
         p = self.pal
         ly = base + 24
-        self.add('  <line x1="%d" y1="%d" x2="%d" y2="%d" stroke="%s" stroke-width="0.8"/>' % (LEFT, ly, RIGHT, ly, p["rule_weak"]))
+        self.add('  <line x1="%d" y1="%d" x2="%d" y2="%d" stroke="%s" stroke-width="0.8"/>' % (LEFT, ly, right, ly, p["rule_weak"]))
         self.text(LEFT, ly + 24, "LEGEND", 8, None, p["muted"], MONO, None, "0.18em")
         x, iy = LEFT, ly + 44
         for kind, label in items:
@@ -108,12 +100,24 @@ class Svg(object):
             self.text(tx, iy + 9, label, 12, None, p["muted"])
             x = ceil4(tx + text_w(label) + 28)
         if note:
-            self.text(RIGHT, iy + 9, note, 12, None, p["soft"], SANS, "end")
-        assert x <= RIGHT - (text_w(note) + 24 if note else 0), "legend too wide for %s" % self.slug
+            self.text(right, iy + 9, note, 12, None, p["soft"], SANS, "end")
+        assert x <= right - (text_w(note) + 24 if note else 0), "legend too wide for %s" % self.slug
 
-    def done(self):
-        self.add("</svg>")
-        return "\n".join(self.out) + "\n"
+    def done(self, left, top, right, bottom, pad=32):
+        """Frame the content with equal padding on every side."""
+        p = self.pal
+        vx, vy, vw, vh = left - pad, top - pad, right - left + 2 * pad, bottom - top + 2 * pad
+        head = [
+            '<svg viewBox="%d %d %d %d" width="%d" height="%d" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="%s-title %s-desc">' % (vx, vy, vw, vh, vw, vh, self.slug, self.slug),
+            '  <title id="%s-title">%s</title>' % (self.slug, esc(self.title)),
+            '  <desc id="%s-desc">%s</desc>' % (self.slug, esc(self.desc)),
+            '  <defs>',
+            '    <marker id="%s-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="%s"/></marker>' % (self.slug, p["muted"]),
+            '    <marker id="%s-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="%s"/></marker>' % (self.slug, p["accent"]),
+            '  </defs>',
+            '  <rect x="%d" y="%d" width="%d" height="%d" fill="%s"/>' % (vx, vy, vw, vh, p["paper"]),
+        ]
+        return "\n".join(head + self.out + ["</svg>"]) + "\n"
 
 
 # ── 1. API groups ────────────────────────────────────────────────────────────
@@ -138,7 +142,7 @@ def render_api(dark):
     base = y0 + top_to_bottom + 4
     s = Svg(slug, "API Endpoints overview",
             "Architecture overview: the app calls three API groups: document management, sharing, and template and E-Form, with the document group highlighted as the core.",
-            base + 144, pal)
+            pal)
 
     centers = [y0 + i * (gh + gap) + gh // 2 for i in range(3)]
     # Arrows first (straight horizontals from the tall client column to each group)
@@ -167,8 +171,8 @@ def render_api(dark):
             cy = y + 36 + j * 20
             s.add('  <circle cx="784" cy="%d" r="2" fill="%s"/>' % (cy - 4, pal["muted"]))
             s.text(796, cy, cap, 12, None, pal["ink"])
-    s.legend(base, [("step", "กลุ่ม API"), ("focal", "กลุ่มหลักที่ flow ส่วนใหญ่ใช้"), ("arrow", "เรียกใช้")])
-    return s.done()
+    s.legend(base, [("step", "กลุ่ม API"), ("focal", "กลุ่มหลักที่ flow ส่วนใหญ่ใช้"), ("arrow", "เรียกใช้")], right=1240)
+    return s.done(LEFT, y0, 1240, base + 80)
 
 
 # ── 2. Data model (conceptual ER) ───────────────────────────────────────────
@@ -209,7 +213,7 @@ def render_dto(dark):
     base = 480
     s = Svg(slug, "Data Models overview",
             "Conceptual data model: an envelope has recipients and share settings, and uses status enums for the overall document and for each recipient. Not the physical database schema.",
-            base + 144, pal)
+            pal)
 
     # Connectors first
     s.line(380, 120, 300, 120, "dash")            # Envelope -> Status
@@ -246,8 +250,8 @@ def render_dto(dark):
         ("เงื่อนไขการเข้าถึง", "link | org | person"),
     ])
     s.legend(base, [("focal", "ข้อมูลหลักที่เป็นศูนย์กลาง"), ("step", "ข้อมูลที่เกี่ยวข้อง"), ("effect", "ค่าที่กำหนดไว้ (Enum)"), ("arrow", "เกี่ยวข้องกัน"), ("dash", "ใช้ค่าสถานะ")],
-             note="โครงสร้างเชิงแนวคิด ไม่ใช่ schema ฐานข้อมูลจริง")
-    return s.done()
+             note="โครงสร้างเชิงแนวคิด ไม่ใช่ schema ฐานข้อมูลจริง", right=1180)
+    return s.done(LEFT, 72, 1180, base + 80)
 
 
 # ── 3. Roles & permissions ───────────────────────────────────────────────────
@@ -273,7 +277,7 @@ def render_roles(dark):
     base = zy + zh + 4
     s = Svg(slug, "Roles and permissions overview",
             "Role groups: content creators (document and form creators), access roles (recipient and viewer), and administration (admin with full management access).",
-            base + 144, pal)
+            pal)
     for zi, (title, tag, cards) in enumerate(ROLE_ZONES):
         zx = 40 + zi * (zw + zgap)
         s.add('  <rect x="%d" y="%d" width="%d" height="%d" rx="8" fill="none" stroke="%s" stroke-width="1" stroke-dasharray="4,4"/>' % (zx, zy, zw, zh, pal["rule_strong"]))
@@ -286,8 +290,8 @@ def render_roles(dark):
             s.text(cx + 16, cy + 24, code, 9, None, pal["accent"] if kind == "focal" else pal["muted"], MONO, None, "0.12em")
             s.text(cx + 16, cy + 48, name, 14, "600", pal["ink"])
             s.text(cx + 16, cy + 74, desc, 12, None, pal["muted"])
-    s.legend(base, [("step", "บทบาท"), ("focal", "สิทธิ์สูงสุด"), ("zone", "กลุ่มสิทธิ์")])
-    return s.done()
+    s.legend(base, [("step", "บทบาท"), ("focal", "สิทธิ์สูงสุด"), ("zone", "กลุ่มสิทธิ์")], right=1208)
+    return s.done(LEFT, zy, 1208, base + 80)
 
 
 DIAGRAMS = [("ref-api", render_api), ("ref-dto", render_dto), ("ref-roles", render_roles)]

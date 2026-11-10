@@ -1,15 +1,15 @@
-<svg viewBox="0 0 1280 720" width="1280" height="720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="bulk-void-envelope-dark-title bulk-void-envelope-dark-desc">
+<svg viewBox="8 64 1148 624" width="1148" height="624" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="bulk-void-envelope-dark-title bulk-void-envelope-dark-desc">
   <title id="bulk-void-envelope-dark-title">Bulk Void Envelope user flow</title>
   <desc id="bulk-void-envelope-dark-desc">Swimlane user flow: a sender selects several envelopes and confirms a void with a reason, the system checks permissions and status then voids each eligible envelope, the sender reviews per-envelope results, and recipients receive a void notice by email.</desc>
   <defs>
     <marker id="bulk-void-envelope-dark-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bfc0c0"/></marker>
     <marker id="bulk-void-envelope-dark-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4d94ff"/></marker>
   </defs>
-  <rect width="100%" height="100%" fill="#0b1030"/>
-  <line x1="40" y1="96" x2="1240" y2="96" stroke="rgba(245,245,245,0.22)" stroke-width="1"/>
-  <line x1="40" y1="256" x2="1240" y2="256" stroke="rgba(245,245,245,0.10)" stroke-width="1"/>
-  <line x1="40" y1="416" x2="1240" y2="416" stroke="rgba(245,245,245,0.10)" stroke-width="1"/>
-  <line x1="40" y1="576" x2="1240" y2="576" stroke="rgba(245,245,245,0.22)" stroke-width="1"/>
+  <rect x="8" y="64" width="1148" height="624" fill="#0b1030"/>
+  <line x1="40" y1="96" x2="1124" y2="96" stroke="rgba(245,245,245,0.22)" stroke-width="1"/>
+  <line x1="40" y1="256" x2="1124" y2="256" stroke="rgba(245,245,245,0.10)" stroke-width="1"/>
+  <line x1="40" y1="416" x2="1124" y2="416" stroke="rgba(245,245,245,0.10)" stroke-width="1"/>
+  <line x1="40" y1="576" x2="1124" y2="576" stroke="rgba(245,245,245,0.22)" stroke-width="1"/>
   <line x1="160" y1="96" x2="160" y2="576" stroke="rgba(245,245,245,0.22)" stroke-width="1"/>
   <text x="60" y="172" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ผู้ใช้</text>
   <text x="60" y="190" fill="#bfc0c0" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">SENDER</text>
@@ -62,7 +62,7 @@
   <rect x="664" y="468" width="200" height="56" rx="6" fill="rgba(245,245,245,0.02)" stroke="rgba(245,245,245,0.30)" stroke-width="1"/>
   <text x="764" y="492" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif" text-anchor="middle">ได้รับอีเมลแจ้งยกเลิก</text>
   <text x="764" y="508" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">email notice</text>
-  <line x1="40" y1="600" x2="1240" y2="600" stroke="rgba(245,245,245,0.10)" stroke-width="0.8"/>
+  <line x1="40" y1="600" x2="1124" y2="600" stroke="rgba(245,245,245,0.10)" stroke-width="0.8"/>
   <text x="40" y="624" fill="#bfc0c0" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
   <rect x="40" y="644" width="14" height="10" rx="2" fill="rgba(245,245,245,0.04)" stroke="#f5f5f5" stroke-width="1"/>
   <text x="60" y="653" fill="#bfc0c0" font-size="12" font-family="'Geist', 'IBM Plex Sans Thai', sans-serif">ขั้นตอน</text>

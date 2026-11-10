@@ -32,7 +32,8 @@ const COL_X0 = 196;
 const PITCH = 240;
 const R = 8;
 const LABEL_H = 16;
-const MIN_RIGHT = 1240;
+/** Equal breathing room between the flow's frame and the edge of the SVG, on every side. */
+const PAD = 32;
 const MAX_NODES = 14;
 const MAX_EDGES = 20;
 const MAX_LANES = 6;
@@ -414,10 +415,7 @@ export function renderFlowSvg(spec: FlowSpec, dark: boolean): string {
   const all = [...nodes.values()];
   const nodeRects = all.map(n => [n.x, n.y, n.w, n.h]);
   const maxRight = Math.max(...all.map(n => n.x + n.w));
-  const RIGHT = Math.max(MIN_RIGHT, maxRight + 148);
-  const W = RIGHT + 40;
   const base = TOP + laneCount * LANE_H;
-  const H = base + 144;
   const dividers = Array.from({ length: laneCount + 1 }, (_, i) => TOP + i * LANE_H);
 
   // 1) choose sides with centred ports
@@ -587,18 +585,38 @@ export function renderFlowSvg(spec: FlowSpec, dark: boolean): string {
     }
   }
 
-  // 5) emit
+  // 5) size the frame to the real content, with equal padding on every side
+  const items: [string, string][] = [['step', 'ขั้นตอน']];
+  if (all.some(n => n.spec.kind === 'decision')) items.push(['decision', 'จุดตัดสินใจ']);
+  if (all.some(n => n.spec.kind === 'focal')) items.push(['focal', 'ขั้นสำคัญ']);
+  if (all.some(n => n.spec.kind === 'effect')) items.push(['effect', 'ผลที่เกิดขึ้น']);
+  items.push(['arrow', 'ลำดับขั้น']);
+  if (routed.some(e => e.style === 'accent')) items.push(['accent', 'ส่งต่อสำคัญ']);
+  if (routed.some(e => e.style === 'dash')) items.push(['dash', 'วนกลับ / ทางเลือก']);
+  const legendIconW = (kind: string) => (kind === 'decision' ? 22 : kind === 'step' || kind === 'focal' || kind === 'effect' ? 20 : 36);
+  let legendX = LEFT;
+  for (const [kind, label] of items) legendX = ceil4(legendX + legendIconW(kind) + textWidth(label) + 28);
+  let contentRight = Math.max(maxRight, legendX - 28);
+  for (const pe of routed) for (const sg of pe.segs) contentRight = Math.max(contentRight, sg[0], sg[2]);
+  for (const l of labels) contentRight = Math.max(contentRight, l.x + l.w);
+  const RIGHT = Math.ceil(contentRight) + PAD;
+  const vx = LEFT - PAD;
+  const vy = TOP - PAD;
+  const vw = RIGHT - LEFT + 2 * PAD;
+  const vh = base + 80 - TOP + 2 * PAD;
+
+  // 6) emit
   const out: string[] = [];
   const w = (s: string) => out.push(s);
   const title = 'Flow diagram';
-  w(`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="${id}-title ${id}-desc">`);
+  w(`<svg viewBox="${vx} ${vy} ${vw} ${vh}" width="${vw}" height="${vh}" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="${id}-title ${id}-desc">`);
   w(`  <title id="${id}-title">${title}</title>`);
   w(`  <desc id="${id}-desc">${esc(`Swimlane flow with ${nodes.size} steps across ${laneCount} lanes: ${all.map(n => n.name).join(', ')}.`)}</desc>`);
   w('  <defs>');
   w(`    <marker id="${id}-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="${pal.muted}"/></marker>`);
   w(`    <marker id="${id}-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="${pal.accent}"/></marker>`);
   w('  </defs>');
-  w(`  <rect width="100%" height="100%" fill="${pal.paper}"/>`);
+  w(`  <rect x="${vx}" y="${vy}" width="${vw}" height="${vh}" fill="${pal.paper}"/>`);
 
   dividers.forEach((y, i) => {
     const strong = i === 0 || i === laneCount;
@@ -652,13 +670,6 @@ export function renderFlowSvg(spec: FlowSpec, dark: boolean): string {
   const ly = base + 24;
   w(`  <line x1="${LEFT}" y1="${ly}" x2="${RIGHT}" y2="${ly}" stroke="${pal.ruleWeak}" stroke-width="0.8"/>`);
   w(`  <text x="${LEFT}" y="${ly + 24}" fill="${pal.muted}" font-size="8" font-family="${MONO}" letter-spacing="0.18em">LEGEND</text>`);
-  const items: [string, string][] = [['step', 'ขั้นตอน']];
-  if (all.some(n => n.spec.kind === 'decision')) items.push(['decision', 'จุดตัดสินใจ']);
-  if (all.some(n => n.spec.kind === 'focal')) items.push(['focal', 'ขั้นสำคัญ']);
-  if (all.some(n => n.spec.kind === 'effect')) items.push(['effect', 'ผลที่เกิดขึ้น']);
-  items.push(['arrow', 'ลำดับขั้น']);
-  if (routed.some(e => e.style === 'accent')) items.push(['accent', 'ส่งต่อสำคัญ']);
-  if (routed.some(e => e.style === 'dash')) items.push(['dash', 'วนกลับ / ทางเลือก']);
   let lx = LEFT;
   const iy = ly + 44;
   for (const [kind, label] of items) {

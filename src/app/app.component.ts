@@ -35,6 +35,8 @@ interface FlowSection {
   body?: SafeHtml;
   /** Source of the diagram: a `flow` JSON spec (preferred) or legacy `mermaid` code. */
   diagramCode?: string;
+  /** Natural pixel size of the rendered SVG, so the zoom modal can size its scroll area to the scaled diagram. */
+  diagramSize?: { w: number; h: number } | null;
   diagramKind?: 'flow' | 'mermaid';
 }
 
@@ -80,7 +82,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   private msg = inject(NzMessageService);
   private sanitizer = inject(DomSanitizer);
   private uxFlowService = inject(UxFlowService);
-  private diagramCache = new Map<string, SafeHtml>();
+  private diagramCache = new Map<string, { html: SafeHtml; size: { w: number; h: number } | null }>();
   private mermaidIdCounter = 0;
 
   isSettingsVisible = signal(false);
@@ -119,6 +121,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   private zoomAnimTimer: any;
   diagramModalSvg = signal<SafeHtml | null>(null);
   diagramModalTitle = signal('Flow Diagram');
+  diagramNatural = signal<{ w: number; h: number } | null>(null);
   diagramZoom = signal(1);
 
   ngOnInit() {
@@ -221,15 +224,17 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     const file = `assets/flows/${slug}${this.isDarkMode() ? '-dark' : ''}.svg`;
     try {
       const svg = await firstValueFrom(this.http.get(file, { responseType: 'text' }));
-      this.openDiagramModal(this.sanitizer.bypassSecurityTrustHtml(this.sizeSvgFromViewBox(svg)), title);
+      const sized = this.sizeSvgFromViewBox(svg);
+      this.openDiagramModal(this.sanitizer.bypassSecurityTrustHtml(sized), this.parseSvgSize(sized), title);
     } catch {
       this.msg.error('โหลดแผนภาพไม่สำเร็จ');
     }
   }
 
-  openDiagramModal(svg: SafeHtml | undefined, title = 'Flow Diagram') {
+  openDiagramModal(svg: SafeHtml | undefined, size: { w: number; h: number } | null = null, title = 'Flow Diagram') {
     if (!svg) return;
     this.diagramModalTitle.set(title);
+    this.diagramNatural.set(size);
     this.diagramModalSvg.set(svg);
     this.diagramZoom.set(1);
     this.isDiagramModalVisible.set(true);
@@ -277,25 +282,32 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     const next = Math.min(2.5, Math.max(0.25, +(old * Math.exp(-e.deltaY * unit * 0.0015)).toFixed(3)));
     if (next === old) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const style = getComputedStyle(canvas);
-    const padLeft = parseFloat(style.paddingLeft);
-    const padTop = parseFloat(style.paddingTop);
-    const mx = e.clientX - rect.left - canvas.clientLeft;
-    const my = e.clientY - rect.top - canvas.clientTop;
-    // Diagram-space point under the cursor before zooming.
-    const px = (canvas.scrollLeft + mx - padLeft) / old;
-    const py = (canvas.scrollTop + my - padTop) / old;
+    // The sizer is the scroll-area footprint of the scaled diagram (it may be centred by auto margins),
+    // so anchor on its on-screen position before and after rather than on canvas padding.
+    const sizer = stage.parentElement as HTMLElement;
+    const before = sizer.getBoundingClientRect();
+    const px = (e.clientX - before.left) / old;
+    const py = (e.clientY - before.top) / old;
 
-    // Apply immediately and without the button-zoom transition, so the scroll
-    // extents are already final when we re-anchor.
+    // Apply immediately and without the button-zoom transition, so the layout is
+    // already final when we re-anchor.
     stage.style.transition = 'none';
+    sizer.style.transition = 'none';
     stage.style.transform = `scale(${next})`;
+    const natural = this.diagramNatural();
+    if (natural) {
+      sizer.style.width = `${natural.w * next}px`;
+      sizer.style.height = `${natural.h * next}px`;
+    }
     this.diagramZoom.set(next);
-    canvas.scrollLeft = px * next + padLeft - mx;
-    canvas.scrollTop = py * next + padTop - my;
+    const after = sizer.getBoundingClientRect();
+    canvas.scrollLeft += after.left + px * next - e.clientX;
+    canvas.scrollTop += after.top + py * next - e.clientY;
     clearTimeout(this.zoomAnimTimer);
-    this.zoomAnimTimer = setTimeout(() => (stage.style.transition = ''), 150);
+    this.zoomAnimTimer = setTimeout(() => {
+      stage.style.transition = '';
+      sizer.style.transition = '';
+    }, 150);
   }
 
   zoomIn() {
@@ -694,26 +706,41 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
       if (!section.diagramCode) continue;
 
       const cacheKey = `${section.diagramKind}:${section.diagramCode}`;
-      let svgHtml = this.diagramCache.get(cacheKey);
-      if (!svgHtml) {
+      let entry = this.diagramCache.get(cacheKey);
+      if (!entry) {
         try {
+          let svgString: string;
           if (section.diagramKind === 'mermaid') {
             // Mermaid measures text at render time; wait for the web fonts or labels get clipped.
             await document.fonts?.ready;
             const themedCode = applyFlowTheme(section.diagramCode, this.isDarkMode());
             const { svg } = await mermaid.render(`mermaid-${this.mermaidIdCounter++}`, themedCode);
-            svgHtml = this.sanitizer.bypassSecurityTrustHtml(this.sizeSvgFromViewBox(svg));
+            svgString = this.sizeSvgFromViewBox(svg);
           } else {
             // Our own renderer: pure string output, no DOM measurement needed.
-            svgHtml = this.sanitizer.bypassSecurityTrustHtml(flowJsonToSvg(section.diagramCode, this.isDarkMode()));
+            svgString = flowJsonToSvg(section.diagramCode, this.isDarkMode());
           }
+          entry = { html: this.sanitizer.bypassSecurityTrustHtml(svgString), size: this.parseSvgSize(svgString) };
         } catch (e) {
-          svgHtml = this.sanitizer.bypassSecurityTrustHtml(`<p style="margin:0;color:var(--gray-6)">ไม่สามารถแสดงแผนภาพได้ (รูปแบบไม่ถูกต้อง)</p>`);
+          entry = {
+            html: this.sanitizer.bypassSecurityTrustHtml(`<p style="margin:0;color:var(--gray-6)">ไม่สามารถแสดงแผนภาพได้ (รูปแบบไม่ถูกต้อง)</p>`),
+            size: null
+          };
         }
-        this.diagramCache.set(cacheKey, svgHtml);
+        this.diagramCache.set(cacheKey, entry);
       }
-      section.body = svgHtml;
+      section.body = entry.html;
+      section.diagramSize = entry.size;
     }
+  }
+
+  /** Reads the explicit pixel width/height from the root <svg> tag, if present. */
+  private parseSvgSize(svgString: string): { w: number; h: number } | null {
+    const tag = svgString.match(/^\s*<svg\b[^>]*>/)?.[0];
+    if (!tag) return null;
+    const w = parseFloat(tag.match(/\swidth="([\d.]+)"/)?.[1] ?? '');
+    const h = parseFloat(tag.match(/\sheight="([\d.]+)"/)?.[1] ?? '');
+    return w > 0 && h > 0 ? { w, h } : null;
   }
 
   /**
