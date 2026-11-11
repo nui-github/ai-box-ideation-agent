@@ -78,7 +78,12 @@ const FLOW_FORMAT_SPEC = `รูปแบบแผนภาพ (ระบบก�
 - เส้นวนกลับ (retry) ให้ชี้ย้อนไปยังโหนดก่อนหน้าได้เลย ระบบจะวาดเส้นอ้อมให้
 `;
 
-function buildSystemInstruction() {
+// Thai is the default and is already what the instruction prompt asks for, so only English adds a directive.
+// It goes last so it overrides any "answer in Thai" wording in a custom prompt.
+const ENGLISH_DIRECTIVE = `Output language: English.
+Write the entire response in English, including the diagram text (lane names, node names, edge labels), while keeping the length limits above. Keep every "##" section heading exactly as specified (including the emoji), and keep the "flow" JSON format unchanged.`;
+
+function buildSystemInstruction(language) {
   const entries = getEntries();
   const knowledgeBlock = entries.map(e => `// ${e.title}: ${e.content}`).join('\n');
 
@@ -87,7 +92,7 @@ function buildSystemInstruction() {
 ข้อมูลระบบปัจจุบันที่มีอยู่ (ใช้เพื่ออ้างอิงและประเมินความเป็นไปได้ ไม่ต้องแสดงในผลลัพธ์โดยตรง):
 ${knowledgeBlock}
 
-${FLOW_FORMAT_SPEC}`;
+${FLOW_FORMAT_SPEC}${language === 'en' ? `\n\n${ENGLISH_DIRECTIVE}` : ''}`;
 }
 
 // Streams the Gemini response, writing SSE-style JSON lines via `res.write`.
@@ -96,7 +101,7 @@ ${FLOW_FORMAT_SPEC}`;
 export async function handleDesignRequest(req, res) {
   let usedModel;
   try {
-    const { messages, model } = req.body;
+    const { messages, model, language } = req.body;
     const selectedModel = model || 'gemini-3.8-flash';
     usedModel = selectedModel;
 
@@ -153,7 +158,7 @@ export async function handleDesignRequest(req, res) {
               model: modelToTry,
               contents: geminiMessages,
               config: {
-                systemInstruction: buildSystemInstruction()
+                systemInstruction: buildSystemInstruction(language)
               }
             });
 

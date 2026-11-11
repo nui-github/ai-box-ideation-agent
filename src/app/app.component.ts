@@ -142,6 +142,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   diagramZoom = signal(1);
 
   ngOnInit() {
+    this.restorePreferences();
     this.uxFlowService.getPrompts().subscribe(data => this.prompts.set(data));
     this.uxFlowService.getInfoTexts().subscribe(data => this.infoTexts.set(data));
     this.intervalId = setInterval(() => {
@@ -162,6 +163,31 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     }
 
     mermaid.initialize(mermaidConfig(this.isDarkMode()));
+  }
+
+  /** Restores the model and output language chosen in Settings (saved per browser). */
+  private restorePreferences() {
+    try {
+      const model = localStorage.getItem('pref-model');
+      if (model && this.availableModels().some(m => m.model === model)) {
+        this.modelPrefControl.setValue(model);
+      }
+      const lang = localStorage.getItem('pref-lang');
+      if (lang === 'th' || lang === 'en') {
+        this.langPrefControl.setValue(lang);
+      }
+    } catch {
+      // storage unavailable: keep defaults
+    }
+  }
+
+  private persistPreferences() {
+    try {
+      localStorage.setItem('pref-model', this.modelPrefControl.value || 'gemini-3.8-flash');
+      localStorage.setItem('pref-lang', this.langPrefControl.value || 'th');
+    } catch {
+      // storage unavailable: preferences last for this session only
+    }
   }
 
   async toggleTheme() {
@@ -415,6 +441,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     }
 
     this.settingsSnapshot.set({ model: this.modelPrefControl.value, lang: this.langPrefControl.value });
+    this.persistPreferences();
     this.closeSettings();
     this.msg.success('บันทึกการตั้งค่าเรียบร้อย');
   }
@@ -536,7 +563,8 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     try {
       const payload = {
         messages: this.messages().map(m => ({ role: m.role, content: m.rawContent })),
-        model: this.modelPrefControl.value || 'gemini-3.8-flash'
+        model: this.modelPrefControl.value || 'gemini-3.8-flash',
+        language: this.langPrefControl.value || 'th'
       };
 
       // Add a placeholder message for the assistant stream
