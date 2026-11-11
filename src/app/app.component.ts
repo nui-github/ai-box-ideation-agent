@@ -1,9 +1,10 @@
-import { Component, ChangeDetectionStrategy, signal, inject, ViewChild, ElementRef, AfterViewChecked, OnInit, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, ViewChild, ElementRef, AfterViewChecked, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { firstValueFrom } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { firstValueFrom, startWith } from 'rxjs';
 import mermaid from 'mermaid';
 import { mermaidConfig, applyFlowTheme } from './mermaid-theme';
 import { flowJsonToSvg } from './flow-diagram';
@@ -113,6 +114,16 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   drawerContent = signal<SafeHtml|null>(null);
 
   instructionControl = new FormControl('', { nonNullable: true });
+  private modelValue = toSignal(this.modelPrefControl.valueChanges.pipe(startWith(this.modelPrefControl.value)));
+  private langValue = toSignal(this.langPrefControl.valueChanges.pipe(startWith(this.langPrefControl.value)));
+  private instructionValue = toSignal(this.instructionControl.valueChanges.pipe(startWith(this.instructionControl.value)), { initialValue: '' });
+  /** Values the drawer opened with; Save is enabled only when the form differs from them. */
+  private settingsSnapshot = signal<{ model: string | null, lang: string | null }>({ model: null, lang: null });
+  isSettingsDirty = computed(() =>
+    this.modelValue() !== this.settingsSnapshot().model ||
+    this.langValue() !== this.settingsSnapshot().lang ||
+    this.instructionValue().trim() !== this.savedInstruction().trim()
+  );
   defaultInstruction = signal('');
   savedInstruction = signal('');
   isSavingSettings = signal(false);
@@ -367,10 +378,15 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     this.loadUsage();
     this.loadBusinessLogic();
     this.loadInstruction();
+    this.settingsSnapshot.set({ model: this.modelPrefControl.value, lang: this.langPrefControl.value });
     this.isSettingsVisible.set(true);
   }
 
+  /** Closes the drawer and drops any unsaved edits. */
   closeSettings() {
+    const { model, lang } = this.settingsSnapshot();
+    this.modelPrefControl.setValue(model);
+    this.langPrefControl.setValue(lang);
     this.isSettingsVisible.set(false);
   }
 
@@ -398,6 +414,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
       }
     }
 
+    this.settingsSnapshot.set({ model: this.modelPrefControl.value, lang: this.langPrefControl.value });
     this.closeSettings();
     this.msg.success('บันทึกการตั้งค่าเรียบร้อย');
   }
