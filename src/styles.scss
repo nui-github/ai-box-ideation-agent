@@ -285,6 +285,16 @@ body, html {
   border-color: #0352c7 !important;
 }
 
+/* Disabled primary: the !important brand colors above would otherwise keep it blue */
+.ant-btn-primary[disabled],
+.ant-btn-primary[disabled]:hover,
+.ant-btn-primary[disabled]:focus {
+  background-color: var(--gray-3) !important;
+  border-color: var(--gray-5) !important;
+  color: var(--gray-6) !important;
+  cursor: not-allowed;
+}
+
 .ant-card {
   border-radius: 8px !important;
 }
