@@ -112,6 +112,11 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   drawerTitle = signal('');
   drawerContent = signal<SafeHtml|null>(null);
 
+  instructionControl = new FormControl('', { nonNullable: true });
+  defaultInstruction = signal('');
+  savedInstruction = signal('');
+  isSavingSettings = signal(false);
+  readonly maxInstructionLength = 20000;
   businessLogicEntries = signal<{ id: string, title: string, content: string }[]>([]);
   isAddingLogic = signal(false);
   reuploadTargetId = signal<string | null>(null);
@@ -361,6 +366,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   openSettings() {
     this.loadUsage();
     this.loadBusinessLogic();
+    this.loadInstruction();
     this.isSettingsVisible.set(true);
   }
 
@@ -368,9 +374,47 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     this.isSettingsVisible.set(false);
   }
 
-  saveSettings() {
+  async saveSettings() {
+    const prompt = this.instructionControl.value.trim();
+    if (!prompt) {
+      this.msg.warning('Instruction Prompt ต้องไม่ว่าง (กด "คืนค่าเริ่มต้น" ถ้าต้องการใช้ค่าเดิม)');
+      return;
+    }
+    if (prompt.length > this.maxInstructionLength) {
+      this.msg.warning(`Instruction Prompt ยาวเกิน ${this.maxInstructionLength} ตัวอักษร`);
+      return;
+    }
+
+    if (prompt !== this.savedInstruction()) {
+      this.isSavingSettings.set(true);
+      try {
+        const res = await firstValueFrom(this.http.put<{ prompt: string }>('/api/instruction', { prompt }));
+        this.savedInstruction.set(res.prompt);
+      } catch {
+        this.msg.error('บันทึก Instruction Prompt ไม่สำเร็จ');
+        return;
+      } finally {
+        this.isSavingSettings.set(false);
+      }
+    }
+
     this.closeSettings();
     this.msg.success('บันทึกการตั้งค่าเรียบร้อย');
+  }
+
+  loadInstruction() {
+    this.http.get<{ prompt: string, defaultPrompt: string }>('/api/instruction').subscribe({
+      next: (data) => {
+        this.defaultInstruction.set(data.defaultPrompt);
+        this.savedInstruction.set(data.prompt);
+        this.instructionControl.setValue(data.prompt);
+      },
+      error: () => this.msg.error('โหลด Instruction Prompt ไม่สำเร็จ')
+    });
+  }
+
+  resetInstruction() {
+    this.instructionControl.setValue(this.defaultInstruction());
   }
 
   loadBusinessLogic() {
@@ -634,6 +678,9 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     "🔍 Flow Analysis":   { cls: "section-analysis",  numCls: "step-num-analysis", dotCls: "bullet-dot-analysis", icon: "lightbulb",      label: "Flow Analysis" },
     "⚖️ Pros & Cons":    { cls: "section-pros",      numCls: "step-num-pros",     dotCls: "bullet-dot-pros",     icon: "scale",          label: "Pros & Cons" },
     "⚠️ Technical Alert": { cls: "section-alert",     numCls: "step-num-alert",    dotCls: "bullet-dot-alert",    icon: "triangle-alert", label: "Technical Alert" },
+    "📖 User Stories":    { cls: "section-stories",   numCls: "step-num-stories",  dotCls: "bullet-dot-stories",  icon: "book-open",      label: "User Stories" },
+    "🔀 Alternative Use Cases": { cls: "section-alt",    numCls: "step-num-alt",      dotCls: "bullet-dot-alt",      icon: "split",          label: "Alternative Use Cases" },
+    "🚧 Edge Cases & Error Handling": { cls: "section-edge", numCls: "step-num-edge", dotCls: "bullet-dot-edge",     icon: "shield-alert",   label: "Edge Cases & Error Handling" },
     "🎨 UI Components":   { cls: "section-ui",        numCls: "step-num-ui",       dotCls: "bullet-dot-ui",       icon: "palette",        label: "UI Components" },
   };
 

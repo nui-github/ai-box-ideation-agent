@@ -4,7 +4,8 @@
   "installCommand": "npm install",
   "functions": {
     "api/**/*.mjs": {
-      "maxDuration": 60
+      "maxDuration": 60,
+      "includeFiles": "api/_lib/*.md"
     }
   },
   "rewrites": [

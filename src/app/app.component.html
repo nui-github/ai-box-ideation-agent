@@ -242,6 +242,37 @@
               <nz-option nzValue="en" nzLabel="English"></nz-option>
             </nz-select>
           </div>
+
+          <nz-divider></nz-divider>
+
+          <div class="form-group instruction-group">
+            <div class="instruction-head">
+              <label class="form-label" for="instructionPrompt">Instruction Prompt</label>
+              <div class="instruction-head-right">
+                @if (instructionControl.value.trim() === defaultInstruction().trim()) {
+                  <nz-tag>ค่าเริ่มต้น</nz-tag>
+                } @else {
+                  <nz-tag nzColor="orange">แก้ไขแล้ว</nz-tag>
+                }
+                <button nz-button nzSize="small" [disabled]="instructionControl.value.trim() === defaultInstruction().trim()" (click)="resetInstruction()">
+                  <lucide-icon name="rotate-ccw" [size]="13"></lucide-icon>
+                  คืนค่าเริ่มต้น
+                </button>
+              </div>
+            </div>
+            <p class="instruction-hint">หลักการคิดและรูปแบบการตอบของ AI ทุกครั้งที่วิเคราะห์ แก้ไขได้ตามต้องการ (รูปแบบ JSON ของ Flow Diagram และข้อมูล Business Logic ระบบเติมให้อัตโนมัติ)</p>
+            <textarea
+              id="instructionPrompt"
+              nz-input
+              class="instruction-textarea"
+              [formControl]="instructionControl"
+              [nzAutosize]="{ minRows: 14, maxRows: 26 }"
+              spellcheck="false"
+            ></textarea>
+            <div class="instruction-count" [class.over]="instructionControl.value.length > maxInstructionLength">
+              {{ instructionControl.value.length }} / {{ maxInstructionLength }}
+            </div>
+          </div>
         </div>
       </nz-tab>
 
@@ -290,7 +321,7 @@
 <ng-template #settingsFooter>
   <div class="settings-drawer-footer">
     <button nz-button (click)="closeSettings()">ยกเลิก</button>
-    <button nz-button nzType="primary" (click)="saveSettings()">บันทึกการตั้งค่า</button>
+    <button nz-button nzType="primary" [nzLoading]="isSavingSettings()" (click)="saveSettings()">บันทึกการตั้งค่า</button>
   </div>
 </ng-template>
 

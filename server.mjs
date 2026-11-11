@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import cors from 'cors';
 import { handleDesignRequest, getModelUsage, MODEL_IDS } from './api/_lib/gemini-design.mjs';
 import { getEntries, addEntry, deleteEntry, updateEntry } from './api/_lib/business-logic-store.mjs';
+import instructionHandler from './api/instruction.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -49,6 +50,8 @@ app.put('/api/business-logic/:id', (req, res) => {
 app.delete('/api/business-logic/:id', (req, res) => {
   res.json(deleteEntry(req.params.id));
 });
+
+app.all('/api/instruction', (req, res) => instructionHandler(req, res));
 
 // Enforce JSON for unmatched API routes
 app.all('/api/*', (req, res) => {

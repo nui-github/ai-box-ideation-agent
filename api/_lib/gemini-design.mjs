@@ -1,5 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 import { getEntries } from './business-logic-store.mjs';
+import { getInstruction } from './instruction-store.mjs';
 
 export const modelLimits = {
   'gemini-3.8-flash': 15,
@@ -32,27 +33,10 @@ export function getModelUsage(modelName) {
   return usageStats[modelName];
 }
 
-function buildSystemInstruction() {
-  const entries = getEntries();
-  const knowledgeBlock = entries.map(e => `// ${e.title}: ${e.content}`).join('\n');
-
-  return `คุณคือ Senior UX/UI Designer และ Product Owner ของระบบ eSignature หน้าที่ของคุณคือรับ Requirement ใหม่ และออกแบบ User Flow แบบเข้าใจง่าย
-
-ข้อมูลระบบปัจจุบันที่มีอยู่ (ใช้เพื่ออ้างอิงและประเมินความเป็นไปได้ ไม่ต้องแสดงในผลลัพธ์โดยตรง):
-${knowledgeBlock}
-
-กฎ:
-1. เขียนอธิบายด้วยภาษาที่เข้าใจง่าย (Non-tech friendly) ให้ทาง PO (Product Owner), BA (Business Analyst) และ Designer อ่านแล้วเห็นภาพ โดยลดการใช้ภาษา Technical / แงะ API / ชื่อ DTO ลงให้เหลือน้อยที่สุด
-2. แปลงเรื่องระบบหลังบ้านให้เป็นภาษาผู้ใช้งาน เช่น แทนที่จะพูดว่า "Call /search API พร้อม status=SUCCESS" ให้พูดว่า "โหลดรายการเอกสารที่เสร็จสมบูรณ์แล้ว"
-3. UI ให้คิดตาม Ant Design Component (ng-zorro) แต่เรียกชื่อให้เป็นภาษาทำความเข้าใจง่าย เช่น "ตารางข้อมูล" หรือ "ปุ่มหลัก"
-4. ใช้ผลลัพธ์เป็นโครงสร้าง Markdown ตามหัวข้อต่อไปนี้เท่านั้น
-
-ตอบเป็น Markdown sections เหล่านี้เท่านั้น:
-## 📋 User Flow
-อธิบายขั้นตอนการทำงานทีละขั้นแบบ Journey ตั้งแต่ต้นจนจบแบบเข้าใจง่าย ไม่ต้องใส่ Endpoint ถ้ายากไป
-
-## 🗺️ Flow Diagram
-สรุป User Flow ด้านบนเป็นแผนภาพแบบ swimlane โดยตอบเป็น JSON ใน code block ชื่อ \`flow\` เท่านั้น ห้ามมีข้อความอื่นในหัวข้อนี้ (ระบบจะจัดวางตำแหน่งและวาดเส้นเอง คุณแค่ระบุว่าใครทำอะไรและเชื่อมกันอย่างไร):
+// Fixed part of the prompt: the Flow Diagram JSON contract the in-app renderer depends on.
+// Not editable from Settings, so a custom instruction can never break diagram rendering.
+const FLOW_FORMAT_SPEC = `รูปแบบแผนภาพ (ระบบกำหนด):
+ในหัวข้อ \`## 🗺️ Flow Diagram\` ให้สรุป Main User Flow เป็นแผนภาพแบบ swimlane โดยตอบเป็น JSON ใน code block ชื่อ \`flow\` เท่านั้น ห้ามมีข้อความอื่นในหัวข้อนี้ (ระบบจะจัดวางตำแหน่งและวาดเส้นเอง คุณแค่ระบุว่าใครทำอะไรและเชื่อมกันอย่างไร):
 
 \`\`\`flow
 {
@@ -92,20 +76,18 @@ ${knowledgeBlock}
 - \`label\` (ไม่บังคับ) ภาษาไทยสั้นมาก ไม่เกิน 8 ตัวอักษร ใส่เฉพาะเส้นที่มีความหมายเพิ่ม
 - \`style\` (ไม่บังคับ): "accent" = จุดส่งต่อที่สำคัญที่สุด (ไม่เกิน 1 เส้น), "dash" = เส้นวนกลับ/ลองใหม่/ทางเลือก, ไม่ใส่ = ปกติ
 - เส้นวนกลับ (retry) ให้ชี้ย้อนไปยังโหนดก่อนหน้าได้เลย ระบบจะวาดเส้นอ้อมให้
+`;
 
-## 🔍 Flow Analysis
-เหตุผลในการออกแบบ การแก้ปัญหา Pain point และประสบการณ์ใช้งานที่ดีขึ้น
+function buildSystemInstruction() {
+  const entries = getEntries();
+  const knowledgeBlock = entries.map(e => `// ${e.title}: ${e.content}`).join('\n');
 
-## ⚖️ Pros & Cons
-ข้อดี และจุดที่ต้องระวัง (บอกด้วยภาษาธุรกิจ เช่น อาจจะเพิ่มขั้นตอนให้ผู้ใช้นิดนึง แต่ได้ความปลอดภัย)
+  return `${getInstruction().prompt}
 
-## ⚠️ Technical Alert
-เตือนทีม Dev สั้นๆ (ส่วนนี้เท่านั้นที่จะใช้ศัพท์เทคนิคได้บ้าง เช่น การแจ้งเตือนเมื่อไม่มีสิทธิ์ หรือต้องเตรียมรับรองข้อมูลแบบไหนใหม่)
+ข้อมูลระบบปัจจุบันที่มีอยู่ (ใช้เพื่ออ้างอิงและประเมินความเป็นไปได้ ไม่ต้องแสดงในผลลัพธ์โดยตรง):
+${knowledgeBlock}
 
-## 🎨 UI Components
-แนะนำส่วนประกอบหน้าจอตาม Ant Design (ng-zorro) แบบเข้าใจง่าย (เช่น Modal สำหรับยืนยัน, แจ้งเตือนแบบ Toast)
-
-ตอบภาษาไทยเป็นหลัก เขียนให้อ่านแล้วรู้สึกโปรเฟสชันนอล เป็นมิตรครับ`;
+${FLOW_FORMAT_SPEC}`;
 }
 
 // Streams the Gemini response, writing SSE-style JSON lines via `res.write`.

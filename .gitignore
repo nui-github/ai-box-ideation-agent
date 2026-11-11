@@ -8,3 +8,4 @@ dist/
 *.log
 .DS_Store
 data/business-logic.json
+data/instruction-prompt.json
