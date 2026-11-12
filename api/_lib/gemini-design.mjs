@@ -102,7 +102,7 @@ export async function handleDesignRequest(req, res) {
   let usedModel;
   try {
     const { messages, model, language } = req.body;
-    const selectedModel = model || 'gemini-3.8-flash';
+    const selectedModel = model || 'gemini-3.6-flash';
     usedModel = selectedModel;
 
     if (!messages || !Array.isArray(messages)) {

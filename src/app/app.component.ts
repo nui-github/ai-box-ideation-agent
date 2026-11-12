@@ -94,7 +94,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   messages = signal<Message[]>([]);
   
   langPrefControl = new FormControl('th');
-  modelPrefControl = new FormControl('gemini-3.8-flash');
+  modelPrefControl = new FormControl('gemini-3.6-flash');
   availableModels = signal<any[]>([
     { model: 'gemini-3.8-flash', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
     { model: 'gemini-3.6-flash', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
@@ -183,7 +183,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
 
   private persistPreferences() {
     try {
-      localStorage.setItem('pref-model', this.modelPrefControl.value || 'gemini-3.8-flash');
+      localStorage.setItem('pref-model', this.modelPrefControl.value || 'gemini-3.6-flash');
       localStorage.setItem('pref-lang', this.langPrefControl.value || 'th');
     } catch {
       // storage unavailable: preferences last for this session only
@@ -563,7 +563,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     try {
       const payload = {
         messages: this.messages().map(m => ({ role: m.role, content: m.rawContent })),
-        model: this.modelPrefControl.value || 'gemini-3.8-flash',
+        model: this.modelPrefControl.value || 'gemini-3.6-flash',
         language: this.langPrefControl.value || 'th'
       };
 
