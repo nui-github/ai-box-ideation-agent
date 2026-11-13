@@ -114,8 +114,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     { model: 'gemini-3.5-flash', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
     { model: 'gemini-2.5-flash', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
     { model: 'gemini-3.1-flash-lite', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
-    { model: 'groq-llama-3.3-70b', remaining: 60, max: 60, resetAt: Date.now() + 60000, lockedUntil: null },
-    { model: 'deepseek-r1', remaining: 60, max: 60, resetAt: Date.now() + 60000, lockedUntil: null }
+    { model: 'groq-llama-3.3-70b', remaining: 60, max: 60, resetAt: Date.now() + 60000, lockedUntil: null }
   ]);
   now = signal(Date.now());
   private intervalId: any;
@@ -530,18 +529,6 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     if (this.activeChatId() === id) this.newChat();
   }
 
-  copyLast() {
-    const msgs = this.messages();
-    const lastAssistant = [...msgs].reverse().find(m => m.role === 'assistant');
-    if (lastAssistant && lastAssistant.rawContent) {
-      navigator.clipboard.writeText(lastAssistant.rawContent).then(() => {
-        this.msg.success('คัดลอกผลลัพธ์เรียบร้อย');
-      });
-    } else {
-      this.msg.warning('ยังไม่มีผลลัพธ์ให้คัดลอก');
-    }
-  }
-
   openSettings() {
     this.loadUsage();
     this.loadBusinessLogic();
@@ -674,8 +661,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
           { model: 'gemini-3.5-flash', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
           { model: 'gemini-2.5-flash', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
           { model: 'gemini-3.1-flash-lite', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
-          { model: 'groq-llama-3.3-70b', remaining: 60, max: 60, resetAt: Date.now() + 60000, lockedUntil: null },
-          { model: 'deepseek-r1', remaining: 60, max: 60, resetAt: Date.now() + 60000, lockedUntil: null }
+          { model: 'groq-llama-3.3-70b', remaining: 60, max: 60, resetAt: Date.now() + 60000, lockedUntil: null }
         ]);
         this.msg.info('เชื่อมต่อระบบสล๊อตโควต้าของเซิร์ฟเวอร์ไม่ได้ ระบบได้สลับมาใช้ค่าจำลองเพื่อไม่ให้งานขัดข้องเรียบร้อยครับ');
       }

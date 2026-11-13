@@ -85,6 +85,75 @@ function fit(text: string, maxWidth: number, per: number): string {
   return chars.join('').trimEnd() + '…';
 }
 
+// ── Fitting text into a node ─────────────────────────────────────────────────
+/** Thai has no spaces, so word boundaries come from the browser's dictionary segmenter. */
+const wordSegmenter: { segment(s: string): Iterable<{ segment: string }> } | null =
+  typeof Intl !== 'undefined' && (Intl as any).Segmenter ? new (Intl as any).Segmenter('th', { granularity: 'word' }) : null;
+
+function tokenize(text: string): string[] {
+  if (wordSegmenter) return Array.from(wordSegmenter.segment(text), s => s.segment);
+  return text.split(/(\s+)/).filter(Boolean);
+}
+
+const CLOSING_PUNCT = /^[\s)\]}?!,.:;…"”']+$/;
+const OPENING_PUNCT = /[(\[{"“']$/;
+
+export interface TextBlock { lines: string[]; size: number; }
+
+/** Best split of `tokens` into two lines that both fit, breaking only between words; null if impossible. */
+function splitInTwo(tokens: string[], per: number, maxW: number): string[] | null {
+  let best: string[] | null = null;
+  let bestW = Infinity;
+  for (let i = 1; i < tokens.length; i++) {
+    if (CLOSING_PUNCT.test(tokens[i]) || OPENING_PUNCT.test(tokens[i - 1])) continue;
+    const a = tokens.slice(0, i).join('').trim();
+    const b = tokens.slice(i).join('').trim();
+    if (!a || !b) continue;
+    const wa = textWidth(a, per);
+    const wb = textWidth(b, per);
+    if (wa > maxW || wb > maxW) continue;
+    // Prefer breaking at a space (a phrase boundary) over inside a Thai run, then the most even split
+    const atSpace = /^\s+$/.test(tokens[i]) || /^\s+$/.test(tokens[i - 1]);
+    const score = Math.max(wa, wb) - (atSpace ? 60 : 0);
+    if (score < bestW) { bestW = score; best = [a, b]; }
+  }
+  return best;
+}
+
+/**
+ * Lays a node name out so it stays readable: one line if it fits, else two lines split between words,
+ * else the same again at a smaller size (down to 10px); only as a last resort is it cut with "…".
+ * `widths` gives the usable width for one line and for two lines (a diamond is narrower when wrapped).
+ */
+export function layoutName(text: string, widths: { one: number; two: number }, maxLines = 2): TextBlock {
+  const tokens = tokenize(text);
+  for (const size of [12, 11, 10]) {
+    const per = size * 0.6;
+    if (textWidth(text, per) <= widths.one) return { lines: [text], size };
+    if (maxLines >= 2) {
+      const two = splitInTwo(tokens, per, widths.two);
+      if (two) return { lines: two, size };
+    }
+  }
+  // Last resort: fill the first line with whole words, ellipsise the remainder on the second
+  const size = 10;
+  const per = size * 0.6;
+  if (maxLines < 2) return { lines: [fit(text, widths.one, per)], size };
+  let first = '';
+  let i = 0;
+  while (i < tokens.length && textWidth(first + tokens[i], per) <= widths.two) first += tokens[i++];
+  const rest = tokens.slice(i).join('').trim();
+  return first.trim() ? { lines: [first.trim(), fit(rest, widths.two, per)], size } : { lines: [fit(text, widths.two, per)], size };
+}
+
+/** Mono sub-labels (endpoints, statuses) are not wrapped: shrink slightly, then ellipsise. */
+function layoutSub(text: string, maxW: number): { text: string; size: number } {
+  for (const size of [9, 8]) {
+    if (textWidth(text, size * 0.62) <= maxW) return { text, size };
+  }
+  return { text: fit(text, maxW, 8 * 0.62), size: 8 };
+}
+
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
@@ -161,7 +230,7 @@ type Seg = [number, number, number, number];
 
 interface PNode {
   spec: FlowNodeSpec; id: string; lane: number; col: number;
-  x: number; y: number; w: number; h: number; cx: number; cy: number; name: string; sub: string;
+  x: number; y: number; w: number; h: number; cx: number; cy: number; name: string; lines: string[]; nameSize: number; sub: string; subSize: number;
 }
 
 interface PEdge {
@@ -393,6 +462,19 @@ function slotsFor(side: Side, count: number): number[] {
 }
 
 // ── Public API ───────────────────────────────────────────────────────────────
+function nameLayout(n: FlowNodeSpec): { lines: string[]; nameSize: number } {
+  const block = n.kind === 'decision'
+    ? layoutName(n.name, { one: 120, two: 100 })
+    : layoutName(n.name, { one: NODE_W - 16, two: NODE_W - 16 });
+  return { lines: block.lines, nameSize: block.size };
+}
+
+function subLayout(n: FlowNodeSpec): { sub: string; subSize: number } {
+  if (n.kind === 'decision' || !n.sub) return { sub: '', subSize: 9 };
+  const l = layoutSub(n.sub, NODE_W - 16);
+  return { sub: l.text, subSize: l.size };
+}
+
 export function renderFlowSvg(spec: FlowSpec, dark: boolean): string {
   const pal = dark ? DARK : LIGHT;
   const id = `flow-${++svgCounter}`;
@@ -408,8 +490,7 @@ export function renderFlowSvg(spec: FlowSpec, dark: boolean): string {
     const y = cy - h / 2;
     nodes.set(n.id, {
       spec: n, id: n.id, lane: n.lane, col, x: cx - NODE_W / 2, y, w: NODE_W, h, cx, cy,
-      name: fit(n.name, n.kind === 'decision' ? 100 : NODE_W - 16, 7.2),
-      sub: n.kind === 'decision' ? '' : fit(n.sub, NODE_W - 16, 5.58),
+      name: n.name, ...nameLayout(n), ...subLayout(n),
     });
   }
   const all = [...nodes.values()];
@@ -655,15 +736,23 @@ export function renderFlowSvg(spec: FlowSpec, dark: boolean): string {
       const pts = `${n.cx},${n.y} ${n.x + n.w},${n.cy} ${n.cx},${n.y + n.h} ${n.x},${n.cy}`;
       w(`  <polygon points="${pts}" fill="${pal.paper}"/>`);
       w(`  <polygon points="${pts}" fill="${pal.decisionFill}" stroke="${pal.ink}" stroke-width="1" stroke-linejoin="round"/>`);
-      w(`  <text x="${n.cx}" y="${n.cy + 4}" fill="${pal.ink}" font-size="12" font-weight="600" font-family="${SANS}" text-anchor="middle">${esc(n.name)}</text>`);
+      n.lines.forEach((line, i) => {
+        const y = n.cy + 4 - (n.lines.length - 1) * 7 + i * 14;
+        w(`  <text x="${n.cx}" y="${y}" fill="${pal.ink}" font-size="${n.nameSize}" font-weight="600" font-family="${SANS}" text-anchor="middle">${esc(line)}</text>`);
+      });
       continue;
     }
     const fill = kind === 'focal' ? pal.tint : kind === 'effect' ? pal.effectFill : pal.nodeFill;
     const stroke = kind === 'focal' ? pal.accent : kind === 'effect' ? pal.effectStroke : pal.ink;
     w(`  <rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="6" fill="${pal.paper}"/>`);
     w(`  <rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="6" fill="${fill}" stroke="${stroke}" stroke-width="1"/>`);
-    w(`  <text x="${n.cx}" y="${n.y + (n.sub ? 24 : 32)}" fill="${pal.ink}" font-size="12" font-weight="600" font-family="${SANS}" text-anchor="middle">${esc(n.name)}</text>`);
-    if (n.sub) w(`  <text x="${n.cx}" y="${n.y + 40}" fill="${pal.muted}" font-size="9" font-family="${MONO}" text-anchor="middle">${esc(n.sub)}</text>`);
+    // Name baselines: centred in the box, shifted up when a sub-label sits underneath
+    const two = n.lines.length > 1;
+    const firstY = n.sub ? (two ? 19 : 24) : (two ? 25 : 32);
+    n.lines.forEach((line, i) => {
+      w(`  <text x="${n.cx}" y="${n.y + firstY + i * 15}" fill="${pal.ink}" font-size="${n.nameSize}" font-weight="600" font-family="${SANS}" text-anchor="middle">${esc(line)}</text>`);
+    });
+    if (n.sub) w(`  <text x="${n.cx}" y="${n.y + (two ? 48 : 40)}" fill="${pal.muted}" font-size="${n.subSize}" font-family="${MONO}" text-anchor="middle">${esc(n.sub)}</text>`);
   }
 
   // Legend

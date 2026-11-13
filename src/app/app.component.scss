@@ -168,13 +168,6 @@
   margin: 8px 16px;
 }
 
-.sidebar-footer {
-  padding: 12px 8px;
-  border-top: 1px solid var(--gray-4);
-  flex-shrink: 0;
-  background: var(--gray-1);
-}
-
 .btn-new {
   display: flex; align-items: center; justify-content: center; gap: 6px;
   width: 100%; padding: 8px; border-radius: 6px;
@@ -183,15 +176,6 @@
   
   &:hover { background: #0352c7; }
 }
-.btn-ghost {
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  width: 100%; padding: 7px; border-radius: 6px;
-  background: none; color: var(--gray-7); font-size: 12px;
-  border: 1px solid var(--gray-5); cursor: pointer; margin-top: 6px; transition: all 0.15s ease;
-  
-  &:hover { border-color: var(--primary-color); color: var(--primary-color); }
-}
-
 .main-layout {
   display: flex;
   flex-direction: column;

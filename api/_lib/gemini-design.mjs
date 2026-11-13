@@ -9,8 +9,7 @@ export const modelLimits = {
   'gemini-2.5-flash': 15,
   'gemini-3.1-flash-lite': 15,
   // Served through OpenRouter (see openrouter.mjs); no free-tier quota to track
-  'groq-llama-3.3-70b': 60,
-  'deepseek-r1': 60
+  'groq-llama-3.3-70b': 60
 };
 
 export const MODEL_IDS = Object.keys(modelLimits);
@@ -34,6 +33,15 @@ export function getModelUsage(modelName) {
   }
   return usageStats[modelName];
 }
+
+// How long a Gemini model may take to start answering before we move on to the next one
+const FIRST_CHUNK_TIMEOUT_MS = 15000;
+
+// Models that just failed (overloaded / out of quota) are skipped for a while, so the next requests
+// go straight to a model that works instead of waiting on the broken one again.
+const cooldownUntil = {};
+const isCoolingDown = (model) => (cooldownUntil[model] || 0) > Date.now();
+const coolDown = (model, ms) => { cooldownUntil[model] = Date.now() + ms; };
 
 // Fixed part of the prompt: the Flow Diagram JSON contract the in-app renderer depends on.
 // Not editable from Settings, so a custom instruction can never break diagram rendering.
@@ -145,7 +153,10 @@ export async function handleDesignRequest(req, res) {
         'gemini-3.1-flash-lite',
         'gemini-2.5-flash'
       ];
-      const modelsToTry = Array.from(new Set([selectedModel, ...fallbackModels]));
+      const allModels = Array.from(new Set([selectedModel, ...fallbackModels]));
+      const healthyModels = allModels.filter(m => !isCoolingDown(m));
+      // If everything is cooling down, try them all anyway rather than failing outright
+      const modelsToTry = healthyModels.length ? healthyModels : allModels;
       let lastError;
 
       let hasStreamed = false;
@@ -155,6 +166,10 @@ export async function handleDesignRequest(req, res) {
 
         let retries = 1;
         while (retries >= 0) {
+          // An overloaded model can sit on the request for 30s+ without answering; give up on it
+          // quickly (first-chunk deadline) so the next model in the chain gets a turn.
+          const abort = new AbortController();
+          const firstChunkTimer = setTimeout(() => abort.abort(), FIRST_CHUNK_TIMEOUT_MS);
           try {
             usedModel = modelToTry;
             // Use streaming to prevent proxy timeouts
@@ -162,11 +177,13 @@ export async function handleDesignRequest(req, res) {
               model: modelToTry,
               contents: geminiMessages,
               config: {
-                systemInstruction: buildSystemInstruction(language)
+                systemInstruction: buildSystemInstruction(language),
+                abortSignal: abort.signal
               }
             });
 
             for await (const chunk of stream) {
+              clearTimeout(firstChunkTimer);
               if (!hasStreamed) {
                 // First chunk arrived, set headers and mark as streaming
                 res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
@@ -206,9 +223,19 @@ export async function handleDesignRequest(req, res) {
               throw new Error('Streaming failed: Model returned an empty response.');
             }
           } catch (err) {
+            clearTimeout(firstChunkTimer);
             lastError = err;
-            const errStr = String(err.message || err);
+            const timedOut = abort.signal.aborted && !hasStreamed;
+            const errStr = timedOut
+              ? `No response from ${modelToTry} within ${FIRST_CHUNK_TIMEOUT_MS / 1000}s (model overloaded)`
+              : String(err.message || err);
             console.warn(`Attempt failed for model ${modelToTry}. Retries left: ${retries}. Error: ${errStr}`);
+
+            if (timedOut) {
+              lastError = new Error(errStr);
+              coolDown(modelToTry, 90 * 1000);
+              break; // do not retry a model that is not answering; fall through to the next one
+            }
 
             if (hasStreamed) {
               // Cannot retry seamlessly if we already streamed data
@@ -220,6 +247,7 @@ export async function handleDesignRequest(req, res) {
             // If it is a quota or rate limit exhaustion, do not retry this model. Let it break and fallback to next model immediately.
             const isQuotaExceeded = errStr.includes('quota') || errStr.toUpperCase().includes('RESOURCE_EXHAUSTED') || errStr.includes('Quota exceeded') || errStr.includes('429');
             if (isQuotaExceeded) {
+              coolDown(modelToTry, 10 * 60 * 1000);
               console.warn(`Quota exceeded for ${modelToTry}. Skipping retries & falling back to next available model.`);
               break;
             }
@@ -230,6 +258,7 @@ export async function handleDesignRequest(req, res) {
               retries--;
               continue;
             }
+            coolDown(modelToTry, 30 * 1000);
             break;
           }
         }

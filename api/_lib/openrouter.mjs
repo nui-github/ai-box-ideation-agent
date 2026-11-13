@@ -4,7 +4,7 @@
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 // Without a cap OpenRouter reserves credit for the model's whole context window and rejects the
-// request when the balance is lower than that. 16k covers a full analysis plus R1's reasoning tokens.
+// request when the balance is lower than that. 16k covers a full analysis.
 const MAX_OUTPUT_TOKENS = 16000;
 
 // App model name (what the Settings dropdown shows) -> OpenRouter request settings.
@@ -13,9 +13,6 @@ export const EXTERNAL_MODELS = {
     id: 'meta-llama/llama-3.3-70b-instruct',
     // Pin to Groq's own inference so "Groq" really means Groq
     provider: { only: ['Groq'], allow_fallbacks: false }
-  },
-  'deepseek-r1': {
-    id: 'deepseek/deepseek-r1-0528'
   }
 };
 
@@ -26,7 +23,7 @@ export function isExternalModel(name) {
 /**
  * Streams a completion to `res` using the same NDJSON contract as the Gemini path:
  * {"chunk": "..."} lines, then {"done": true}, or {"error": "..."}.
- * Reasoning tokens (DeepSeek-R1's chain of thought) are not forwarded, only the final answer.
+ * Reasoning tokens (if a reasoning model is added) are not forwarded, only the final answer.
  */
 export async function streamExternalModel(modelName, { messages, systemInstruction }, res) {
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -61,6 +58,9 @@ export async function streamExternalModel(modelName, { messages, systemInstructi
       detail = body?.error?.message || JSON.stringify(body);
     } catch {
       detail = upstream.statusText;
+    }
+    if (upstream.status === 402) {
+      return res.status(402).json({ error: `เครดิต OpenRouter ไม่พอสำหรับ ${modelName} กรุณาเติมเครดิตที่ openrouter.ai/credits แล้วลองใหม่ (${detail})` });
     }
     return res.status(upstream.status === 429 ? 429 : 502).json({ error: `${modelName}: ${detail}` });
   }

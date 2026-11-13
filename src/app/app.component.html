@@ -70,12 +70,6 @@
         </div>
       </div>
     </div>
-
-    <div class="sidebar-footer">
-      <button class="btn-ghost" (click)="openSettings()">
-        <lucide-icon name="settings" [size]="16" style="margin-right:8px"></lucide-icon> ตั้งค่าระบบ
-      </button>
-    </div>
   </nz-sider>
 
   <nz-layout class="main-layout">
@@ -92,7 +86,6 @@
         <button class="btn-icon" nz-tooltip [nzTooltipTitle]="isDarkMode() ? 'ใช้ธีมสว่าง' : 'ใช้ธีมมืด'" (click)="toggleTheme()">
           <lucide-icon [name]="isDarkMode() ? 'sun' : 'moon'" [size]="18"></lucide-icon>
         </button>
-        <button class="btn-icon" nz-tooltip nzTooltipTitle="Copy last response" (click)="copyLast()"><lucide-icon name="copy" [size]="18"></lucide-icon></button>
         <button class="btn-icon" nz-tooltip nzTooltipTitle="Reset chat" (click)="newChat()"><lucide-icon name="rotate-ccw" [size]="18"></lucide-icon></button>
         <button class="btn-icon" nz-tooltip nzTooltipTitle="Settings" (click)="openSettings()"><lucide-icon name="settings" [size]="18"></lucide-icon></button>
       </div>
