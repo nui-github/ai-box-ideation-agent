@@ -88,6 +88,8 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
 
   isSettingsVisible = signal(false);
   isAnalyzing = signal(false);
+  /** The answer being exported; rendered as a print-only copy of the page. */
+  printData = signal<{ question: string; date: string; sections: FlowSection[] } | null>(null);
   isCollapsed = signal(false);
   isDarkMode = signal(false);
   messageInputControl = new FormControl('');
@@ -188,6 +190,62 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
     } catch {
       // storage unavailable: preferences last for this session only
     }
+  }
+
+  /**
+   * Exports one answer (text sections + flow diagram) as a PDF through the browser's print dialog
+   * ("Save as PDF"), which keeps text selectable and the diagram as vector. The page is swapped for a
+   * print-only copy rendered in the light theme, whatever theme is on screen.
+   */
+  async exportPdf(index: number) {
+    const msgs = this.messages();
+    const msg = msgs[index];
+    if (!msg?.sections?.length) return;
+
+    const question = [...msgs.slice(0, index)].reverse().find(m => m.role === 'user')?.content ?? '';
+    const sections = msg.sections.map(s => {
+      if (s.diagramCode && s.diagramKind === 'flow') {
+        try {
+          return { ...s, body: this.sanitizer.bypassSecurityTrustHtml(flowJsonToSvg(s.diagramCode, false)) };
+        } catch {
+          return s;
+        }
+      }
+      return s;
+    });
+
+    const root = document.documentElement;
+    const wasDark = root.classList.contains('dark-theme');
+    const originalTitle = document.title;
+
+    this.printData.set({
+      question,
+      date: new Date().toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'short' }),
+      sections
+    });
+    root.classList.remove('dark-theme');
+    document.body.classList.remove('dark-theme');
+    // Browsers suggest the document title as the PDF file name
+    document.title = (question.trim().replace(/[\\/:*?"<>|]+/g, ' ').slice(0, 60) || 'PO-analysis').trim();
+
+    const restore = () => {
+      window.removeEventListener('afterprint', restore);
+      document.title = originalTitle;
+      if (wasDark) {
+        root.classList.add('dark-theme');
+        document.body.classList.add('dark-theme');
+      }
+      this.printData.set(null);
+    };
+    window.addEventListener('afterprint', restore);
+
+    // Let Angular render the print copy before the browser snapshots the page
+    // (timeout fallback: animation frames pause while the tab is in the background)
+    await new Promise<void>(resolve => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      setTimeout(resolve, 150);
+    });
+    window.print();
   }
 
   async toggleTheme() {

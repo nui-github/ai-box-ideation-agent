@@ -135,6 +135,14 @@
                         }
                       }
                     </div>
+                    @if (msg.sections?.length && !(isAnalyzing() && $last)) {
+                      <div class="result-actions">
+                        <button nz-button nzSize="small" (click)="exportPdf($index)">
+                          <lucide-icon name="file-down" [size]="14"></lucide-icon>
+                          Export PDF
+                        </button>
+                      </div>
+                    }
                   </div>
                 }
               </div>
@@ -350,3 +358,32 @@
   </ng-container>
 </nz-modal>
 
+<!-- Printable copy of one answer (hidden on screen, the only thing shown when printing / saving as PDF) -->
+@if (printData(); as pd) {
+  <div class="print-sheet">
+    <div class="print-header">
+      <div class="print-title">Product Owner (PO) assistant agent</div>
+      <div class="print-date">{{ pd.date }}</div>
+    </div>
+    @if (pd.question) {
+      <div class="print-question">{{ pd.question }}</div>
+    }
+    @for (section of pd.sections; track $index) {
+      @if (section.title) {
+        <div class="section-card" [ngClass]="section.cls">
+          <div class="section-card-head">
+            <div class="section-card-head-left">
+              <lucide-icon [name]="section.icon" [size]="16" [strokeWidth]="2.5"></lucide-icon>
+              <span>{{ section.label }}</span>
+            </div>
+          </div>
+          <div class="section-card-body" [class.print-diagram]="!!section.diagramCode">
+            <div [innerHTML]="section.body"></div>
+          </div>
+        </div>
+      } @else {
+        <div class="print-intro" [innerHTML]="section.body"></div>
+      }
+    }
+  </div>
+}

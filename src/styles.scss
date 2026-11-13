@@ -310,3 +310,34 @@ body, html {
 .ant-alert {
   border-radius: 8px !important;
 }
+
+/* ---- PDF export: the print-only copy of one answer ---- */
+.print-sheet { display: none; }
+
+@page { size: A4; margin: 12mm; }
+
+@media print {
+  html, body { background: #fff !important; height: auto !important; overflow: visible !important; }
+  app-root > *:not(.print-sheet), .cdk-overlay-container { display: none !important; }
+
+  .print-sheet {
+    display: block;
+    color: #1f1f1f;
+    font-size: 12.5px;
+    line-height: 1.65;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .print-header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-bottom: 8px; margin-bottom: 12px; border-bottom: 2px solid #0463ef; }
+  .print-title { font-size: 15px; font-weight: 600; color: #0463ef; }
+  .print-date { font-size: 11px; color: #8c8c8c; }
+  .print-question { padding: 10px 14px; margin-bottom: 14px; background: #f5f7fa; border-left: 3px solid #0463ef; border-radius: 4px; font-size: 13.5px; font-weight: 500; white-space: pre-wrap; }
+  .print-intro { margin-bottom: 10px; }
+
+  .print-sheet .section-card { break-inside: auto; margin-bottom: 12px; }
+  .print-sheet .section-card-head { break-after: avoid; }
+  .print-sheet .section-diagram { break-inside: avoid; }
+  .print-sheet .step-row, .print-sheet .bullet-row { break-inside: avoid; }
+  .print-diagram { overflow: visible; max-height: none; padding: 8px; }
+  .print-diagram svg { width: 100%; height: auto; max-width: 100%; display: block; }
+}

@@ -272,6 +272,8 @@
 .bubble-user { background: var(--primary-color); color: #fff; padding: 10px 16px; border-radius: 16px 4px 16px 16px; font-size: 14px; line-height: 1.65; max-width: 72%; }
 .msg-meta { font-size: 11px; color: var(--gray-6); font-weight: 500; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
 .result-wrap { flex: 1; min-width: 0; }
+.result-actions { display: flex; justify-content: flex-end; margin-top: 4px; }
+.result-actions button { display: inline-flex; align-items: center; gap: 6px; }
 
 ::ng-deep {
   /* Section Cards */
