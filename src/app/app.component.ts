@@ -41,6 +41,14 @@ interface FlowSection {
   diagramKind?: 'flow' | 'mermaid';
 }
 
+/** A saved conversation. Only the raw text is stored; the section cards are rebuilt on load. */
+interface ChatSession {
+  id: string;
+  title: string;
+  updatedAt: number;
+  messages: { role: 'user' | 'assistant'; rawContent: string }[];
+}
+
 interface Message {
   role: 'user' | 'assistant';
   content?: string;
@@ -94,6 +102,10 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   isDarkMode = signal(false);
   messageInputControl = new FormControl('');
   messages = signal<Message[]>([]);
+  chatHistory = signal<ChatSession[]>([]);
+  activeChatId = signal<string | null>(null);
+  private static readonly HISTORY_KEY = 'chat-history-v1';
+  private static readonly MAX_SAVED_CHATS = 30;
   
   langPrefControl = new FormControl('th');
   modelPrefControl = new FormControl('gemini-3.6-flash');
@@ -145,6 +157,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
 
   ngOnInit() {
     this.restorePreferences();
+    this.chatHistory.set(this.readHistory());
     this.uxFlowService.getPrompts().subscribe(data => this.prompts.set(data));
     this.uxFlowService.getInfoTexts().subscribe(data => this.infoTexts.set(data));
     this.intervalId = setInterval(() => {
@@ -444,6 +457,77 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
 
   newChat() {
     this.messages.set([]);
+    this.activeChatId.set(null);
+  }
+
+  private readHistory(): ChatSession[] {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(AppComponent.HISTORY_KEY) || '[]');
+      return Array.isArray(parsed)
+        ? parsed.filter((c: ChatSession) => c && typeof c.id === 'string' && Array.isArray(c.messages))
+        : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private writeHistory(list: ChatSession[]): ChatSession[] {
+    // Saved per browser; if storage is full, drop the oldest chats until it fits
+    let toSave = list;
+    for (;;) {
+      try {
+        localStorage.setItem(AppComponent.HISTORY_KEY, JSON.stringify(toSave));
+        return toSave;
+      } catch {
+        if (!toSave.length) return toSave; // storage unavailable altogether
+        toSave = toSave.slice(0, -1);
+      }
+    }
+  }
+
+  /** Saves the open conversation to Chat History (only once it has an answer). */
+  private saveCurrentChat() {
+    const msgs = this.messages().filter(m => m.rawContent?.trim());
+    if (!msgs.some(m => m.role === 'assistant')) return;
+
+    const id = this.activeChatId() ?? crypto.randomUUID();
+    this.activeChatId.set(id);
+
+    const firstQuestion = msgs.find(m => m.role === 'user')?.rawContent ?? '';
+    const title = firstQuestion.replace(/\s+/g, ' ').trim().slice(0, 60) || 'แชทใหม่';
+
+    const session: ChatSession = {
+      id,
+      title,
+      updatedAt: Date.now(),
+      messages: msgs.map(m => ({ role: m.role, rawContent: m.rawContent! }))
+    };
+    const list = [session, ...this.chatHistory().filter(c => c.id !== id)].slice(0, AppComponent.MAX_SAVED_CHATS);
+    this.chatHistory.set(this.writeHistory(list));
+  }
+
+  /** Reopens a saved conversation so the user can keep chatting in it. */
+  async loadChat(id: string) {
+    if (this.isAnalyzing()) return;
+    const chat = this.chatHistory().find(c => c.id === id);
+    if (!chat) return;
+
+    const restored: Message[] = chat.messages.map(m =>
+      m.role === 'user'
+        ? { role: 'user', content: m.rawContent, rawContent: m.rawContent }
+        : { role: 'assistant', rawContent: m.rawContent, sections: this.parseSections(m.rawContent, true) }
+    );
+    for (const m of restored) {
+      if (m.sections) await this.hydrateMermaidSections(m.sections);
+    }
+    this.messages.set(restored);
+    this.activeChatId.set(id);
+  }
+
+  deleteChat(id: string, event: Event) {
+    event.stopPropagation();
+    this.chatHistory.set(this.writeHistory(this.chatHistory().filter(c => c.id !== id)));
+    if (this.activeChatId() === id) this.newChat();
   }
 
   copyLast() {
@@ -772,6 +856,7 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
       });
     } finally {
       this.isAnalyzing.set(false);
+      this.saveCurrentChat();
     }
   }
 

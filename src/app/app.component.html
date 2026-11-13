@@ -25,6 +25,27 @@
         }
       </div>
 
+      @if (chatHistory().length) {
+        <div class="sidebar-divider"></div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-label">Chat History</div>
+          <div class="history-list">
+            @for (chat of chatHistory(); track chat.id) {
+              <div class="nav-row">
+                <button class="nav-item" [class.active]="chat.id === activeChatId()" [disabled]="isAnalyzing()" [attr.title]="chat.title" (click)="loadChat(chat.id)">
+                  <lucide-icon name="message-square" [size]="16" [strokeWidth]="2"></lucide-icon>
+                  <span class="history-label">{{ chat.title }}</span>
+                </button>
+                <button class="nav-flow-btn danger" nz-tooltip nzTooltipTitle="ลบแชทนี้" nzTooltipPlacement="right" (click)="deleteChat(chat.id, $event)">
+                  <lucide-icon name="trash-2" [size]="14"></lucide-icon>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
       <div class="sidebar-divider"></div>
 
       <div class="sidebar-section">
@@ -137,9 +158,9 @@
                     </div>
                     @if (msg.sections?.length && !(isAnalyzing() && $last)) {
                       <div class="result-actions">
-                        <button nz-button nzSize="small" (click)="exportPdf($index)">
-                          <lucide-icon name="file-down" [size]="14"></lucide-icon>
-                          Export PDF
+                        <button class="export-pdf-btn" (click)="exportPdf($index)">
+                          <lucide-icon name="file-down" [size]="16" [strokeWidth]="2"></lucide-icon>
+                          <span>Export PDF</span>
                         </button>
                       </div>
                     }

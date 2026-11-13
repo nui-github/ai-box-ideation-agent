@@ -116,6 +116,12 @@
   }
 }
 
+/* Chat history */
+.history-list { max-height: 240px; overflow-y: auto; }
+.nav-item.active { background: var(--hover-bg); color: var(--primary-color); font-weight: 500; }
+.nav-item:disabled { cursor: not-allowed; opacity: 0.55; }
+.history-label { display: block; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.4; }
+
 /* Quick-prompt row: the prompt button plus a reveal-on-hover "see example flow" action. */
 .nav-row {
   position: relative;
@@ -149,6 +155,7 @@
     }
 
     &:hover { color: var(--primary-color); background: var(--gray-4); }
+    &.danger:hover { color: #cf1322; }
   }
 
   &:hover .nav-flow-btn,
@@ -272,8 +279,31 @@
 .bubble-user { background: var(--primary-color); color: #fff; padding: 10px 16px; border-radius: 16px 4px 16px 16px; font-size: 14px; line-height: 1.65; max-width: 72%; }
 .msg-meta { font-size: 11px; color: var(--gray-6); font-weight: 500; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
 .result-wrap { flex: 1; min-width: 0; }
-.result-actions { display: flex; justify-content: flex-end; margin-top: 4px; }
-.result-actions button { display: inline-flex; align-items: center; gap: 6px; }
+.result-actions { display: flex; justify-content: flex-end; margin-top: 6px; }
+.export-pdf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-card);
+  color: var(--primary-color);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+
+  lucide-icon, ::ng-deep lucide-icon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  span { display: inline-flex; align-items: center; line-height: 1; }
+
+  &:hover { background: var(--hover-bg); border-color: var(--primary-color); }
+  &:active { background: var(--hover-bg); }
+}
 
 ::ng-deep {
   /* Section Cards */
