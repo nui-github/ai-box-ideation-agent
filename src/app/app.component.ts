@@ -96,12 +96,12 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   langPrefControl = new FormControl('th');
   modelPrefControl = new FormControl('gemini-3.6-flash');
   availableModels = signal<any[]>([
-    { model: 'gemini-3.8-flash', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
     { model: 'gemini-3.6-flash', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
     { model: 'gemini-3.5-flash', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
     { model: 'gemini-2.5-flash', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
     { model: 'gemini-3.1-flash-lite', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
-    { model: 'gemini-flash-latest', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null }
+    { model: 'groq-llama-3.3-70b', remaining: 60, max: 60, resetAt: Date.now() + 60000, lockedUntil: null },
+    { model: 'deepseek-r1', remaining: 60, max: 60, resetAt: Date.now() + 60000, lockedUntil: null }
   ]);
   now = signal(Date.now());
   private intervalId: any;
@@ -528,12 +528,12 @@ export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
       next: (data) => this.availableModels.set(data),
       error: () => {
         this.availableModels.set([
-          { model: 'gemini-3.8-flash', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
           { model: 'gemini-3.6-flash', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
           { model: 'gemini-3.5-flash', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
           { model: 'gemini-2.5-flash', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
           { model: 'gemini-3.1-flash-lite', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null },
-          { model: 'gemini-flash-latest', remaining: 15, max: 15, resetAt: Date.now() + 60000, lockedUntil: null }
+          { model: 'groq-llama-3.3-70b', remaining: 60, max: 60, resetAt: Date.now() + 60000, lockedUntil: null },
+          { model: 'deepseek-r1', remaining: 60, max: 60, resetAt: Date.now() + 60000, lockedUntil: null }
         ]);
         this.msg.info('เชื่อมต่อระบบสล๊อตโควต้าของเซิร์ฟเวอร์ไม่ได้ ระบบได้สลับมาใช้ค่าจำลองเพื่อไม่ให้งานขัดข้องเรียบร้อยครับ');
       }

@@ -1,14 +1,16 @@
 import { GoogleGenAI } from '@google/genai';
 import { getEntries } from './business-logic-store.mjs';
 import { getInstruction } from './instruction-store.mjs';
+import { isExternalModel, streamExternalModel } from './openrouter.mjs';
 
 export const modelLimits = {
-  'gemini-3.8-flash': 15,
   'gemini-3.6-flash': 15,
   'gemini-3.5-flash': 15,
   'gemini-2.5-flash': 15,
   'gemini-3.1-flash-lite': 15,
-  'gemini-flash-latest': 15
+  // Served through OpenRouter (see openrouter.mjs); no free-tier quota to track
+  'groq-llama-3.3-70b': 60,
+  'deepseek-r1': 60
 };
 
 export const MODEL_IDS = Object.keys(modelLimits);
@@ -109,6 +111,10 @@ export async function handleDesignRequest(req, res) {
       return res.status(400).json({ error: 'Missing or invalid messages' });
     }
 
+    if (isExternalModel(selectedModel)) {
+      return await streamExternalModel(selectedModel, { messages, systemInstruction: buildSystemInstruction(language) }, res);
+    }
+
     const usage = getModelUsage(selectedModel);
     if (usage.lockedUntil && Date.now() < usage.lockedUntil) {
       const waitTime = Math.ceil((usage.lockedUntil - Date.now()) / 1000);
@@ -134,11 +140,9 @@ export async function handleDesignRequest(req, res) {
       let response;
 
       let fallbackModels = [
-        'gemini-3.8-flash',
         'gemini-3.6-flash',
         'gemini-3.5-flash',
         'gemini-3.1-flash-lite',
-        'gemini-flash-latest',
         'gemini-2.5-flash'
       ];
       const modelsToTry = Array.from(new Set([selectedModel, ...fallbackModels]));
